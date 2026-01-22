@@ -46,6 +46,28 @@
   text-transform: capitalize;
 }
 
+.call-status.active {
+  color: #4caf50;
+}
+
+.call-status.connecting {
+  color: #ff9800;
+}
+
+.connecting-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 1rem auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 .video-container {
   flex: 1;
   position: relative;

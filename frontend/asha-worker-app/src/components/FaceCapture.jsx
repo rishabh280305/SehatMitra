@@ -10,6 +10,8 @@ function FaceCapture({ onFaceCapture, mode = 'register' }) {
   const [faceDetected, setFaceDetected] = useState(false);
   const [capturing, setCapturing] = useState(false);
   const [error, setError] = useState('');
+  const hasCapturedRef = useRef(false);
+  const detectionIntervalRef = useRef(null);
 
   useEffect(() => {
     loadModels();
@@ -75,7 +77,7 @@ function FaceCapture({ onFaceCapture, mode = 'register' }) {
 
     faceapi.matchDimensions(canvas, displaySize);
 
-    setInterval(async () => {
+    detectionIntervalRef.current = setInterval(async () => {
       if (!video || video.paused || video.ended) return;
 
       const detections = await faceapi
@@ -93,9 +95,10 @@ function FaceCapture({ onFaceCapture, mode = 'register' }) {
 
       if (detections.length > 0) {
         setFaceDetected(true);
-        // Auto-capture for login mode
-        if (mode === 'login' && !capturing) {
-          captureFace();
+        // Auto-capture for login mode - only once
+        if (mode === 'login' && !hasCapturedRef.current) {
+          hasCapturedRef.current = true;
+          setTimeout(() => captureFace(), 500); // Small delay for stability
         }
       } else {
         setFaceDetected(false);
@@ -104,10 +107,16 @@ function FaceCapture({ onFaceCapture, mode = 'register' }) {
   };
 
   const captureFace = async () => {
-    if (!videoRef.current || !faceDetected || capturing) return;
+    if (!videoRef.current || capturing) return;
 
     setCapturing(true);
     setError('');
+    
+    // Clear detection interval
+    if (detectionIntervalRef.current) {
+      clearInterval(detectionIntervalRef.current);
+      detectionIntervalRef.current = null;
+    }
 
     try {
       const detection = await faceapi
