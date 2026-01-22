@@ -3,7 +3,7 @@ const router = express.Router();
 const HospitalManagement = require('../models/HospitalManagement');
 const StockSupply = require('../models/StockSupply');
 const StockRequest = require('../models/StockRequest');
-const auth = require('../middleware/auth');
+const { protect: auth } = require('../middleware/auth');
 
 // Get hospital management data
 router.get('/data', auth, async (req, res) => {

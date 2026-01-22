@@ -4,7 +4,7 @@ const StockRequest = require('../models/StockRequest');
 const StockSupply = require('../models/StockSupply');
 const HospitalManagement = require('../models/HospitalManagement');
 const Prescription = require('../models/Prescription');
-const auth = require('../middleware/auth');
+const { protect: auth } = require('../middleware/auth');
 
 // Get all stock requests for a district
 router.get('/requests/:district', auth, async (req, res) => {
