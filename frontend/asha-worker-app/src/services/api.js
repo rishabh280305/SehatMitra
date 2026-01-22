@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = '/api/v1';
+const API_URL = import.meta.env.VITE_API_URL || 'https://sehatmitra-backend.vercel.app/api/v1';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -38,6 +38,20 @@ export const authService = {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
     }
+    return response.data;
+  },
+
+  faceLogin: async ({ email, faceDescriptor }) => {
+    const response = await api.post('/auth/face-login', { email, faceDescriptor });
+    if (response.data.token) {
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+    }
+    return response.data;
+  },
+
+  registerFace: async (faceDescriptor) => {
+    const response = await api.post('/auth/register-face', { faceDescriptor });
     return response.data;
   },
 

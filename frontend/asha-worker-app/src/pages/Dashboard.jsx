@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiLogOut, FiUser, FiClipboard, FiPackage, FiCheckCircle, FiActivity, FiUsers, FiMessageCircle } from 'react-icons/fi';
 import axios from 'axios';
+import API_BASE_URL from '../config';
+import FaceSetupCard from '../components/FaceSetupCard';
+import '../styles/modern.css';
 import './Dashboard.css';
-
-const API_BASE_URL = 'http://localhost:5000/api/v1';
 
 function Dashboard({ user, onLogout }) {
   const navigate = useNavigate();
@@ -217,6 +218,10 @@ function Dashboard({ user, onLogout }) {
               </div>
             </div>
           </div>
+        </div>
+
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1rem' }}>
+          <FaceSetupCard user={user} />
         </div>
       </main>
     </div>

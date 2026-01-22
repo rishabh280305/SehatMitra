@@ -3,9 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FiHome, FiUser, FiCalendar, FiActivity, FiSearch } from 'react-icons/fi';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import API_BASE_URL from '../config';
 import './MyPatients.css';
-
-const API_BASE_URL = 'http://localhost:5000/api/v1';
 
 function MyPatients({ user, onLogout }) {
   const navigate = useNavigate();

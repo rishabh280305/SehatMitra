@@ -3,9 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { FiCamera, FiUpload, FiHome } from 'react-icons/fi';
 import axios from 'axios';
+import API_BASE_URL from '../config';
 import './PatientIntake.css';
-
-const API_BASE_URL = 'http://localhost:5000/api/v1';
 
 function PatientIntake({ user, onLogout }) {
   const navigate = useNavigate();
