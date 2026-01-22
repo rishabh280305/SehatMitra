@@ -153,6 +153,9 @@ app.use(`/api/${apiVersion}/patients`, require('./routes/patient.routes'));
 app.use(`/api/${apiVersion}/consultations`, require('./routes/consultation.routes'));
 app.use(`/api/${apiVersion}/calls`, require('./routes/call.routes'));
 app.use(`/api/${apiVersion}/doctors`, require('./routes/doctor.routes'));
+app.use(`/api/${apiVersion}/district`, require('./routes/districtOfficer'));
+app.use(`/api/${apiVersion}/hospital`, require('./routes/hospital'));
+app.use(`/api/${apiVersion}/medicines`, require('./routes/essentialMedicines'));
 
 // 404 handler
 app.use((req, res, next) => {

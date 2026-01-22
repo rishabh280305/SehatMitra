@@ -1,0 +1,400 @@
+.doctor-rotation-page {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* Stats Cards */
+.rotation-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+/* Week Navigation */
+.week-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: var(--gradient-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 24px;
+}
+
+.week-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.week-nav-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.current-week {
+  text-align: center;
+}
+
+.current-week h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.current-week p {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Schedule Grid */
+.schedule-grid {
+  background: var(--gradient-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.schedule-header {
+  display: grid;
+  grid-template-columns: 150px repeat(7, 1fr);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.schedule-header-cell {
+  padding: 16px;
+  text-align: center;
+  border-right: 1px solid var(--border);
+}
+
+.schedule-header-cell:last-child {
+  border-right: none;
+}
+
+.schedule-header-cell.day-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.day-name {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.day-date {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.schedule-header-cell.today {
+  background: rgba(59, 130, 246, 0.1);
+  border-bottom: 2px solid var(--primary);
+}
+
+.schedule-header-cell.today .day-name,
+.schedule-header-cell.today .day-date {
+  color: var(--primary);
+}
+
+.schedule-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.schedule-row {
+  display: grid;
+  grid-template-columns: 150px repeat(7, 1fr);
+  border-bottom: 1px solid var(--border);
+}
+
+.schedule-row:last-child {
+  border-bottom: none;
+}
+
+.department-cell {
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.department-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--primary);
+}
+
+.department-info h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.department-info p {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.shift-cell {
+  padding: 12px;
+  border-right: 1px solid var(--border);
+  min-height: 100px;
+}
+
+.shift-cell:last-child {
+  border-right: none;
+}
+
+.shift-cell.today {
+  background: rgba(59, 130, 246, 0.03);
+}
+
+.shift-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.shift-card:hover {
+  border-color: var(--border-light);
+  transform: translateY(-1px);
+}
+
+.shift-card:last-child {
+  margin-bottom: 0;
+}
+
+.shift-time {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.shift-time.morning { color: var(--warning); }
+.shift-time.afternoon { color: var(--primary); }
+.shift-time.night { color: #8b5cf6; }
+
+.shift-doctor {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.shift-empty {
+  height: 60px;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.shift-empty:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: rgba(59, 130, 246, 0.05);
+}
+
+/* Doctor List */
+.doctor-list-section {
+  background: var(--gradient-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-top: 24px;
+}
+
+.section-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-header h2 svg {
+  color: var(--primary);
+}
+
+.doctor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  padding: 24px;
+}
+
+.doctor-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  display: flex;
+  gap: 16px;
+  transition: all 0.2s ease;
+}
+
+.doctor-card:hover {
+  border-color: var(--border-light);
+  background: var(--bg-tertiary);
+}
+
+.doctor-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.doctor-details h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.doctor-specialty {
+  font-size: 12px;
+  color: var(--primary);
+  margin-bottom: 8px;
+}
+
+.doctor-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.doctor-status.available {
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--success);
+}
+
+.doctor-status.on-duty {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--primary);
+}
+
+.doctor-status.off {
+  background: rgba(113, 113, 122, 0.15);
+  color: var(--text-muted);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+@media (max-width: 1200px) {
+  .rotation-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .schedule-grid {
+    overflow-x: auto;
+  }
+  
+  .schedule-header,
+  .schedule-row {
+    min-width: 1000px;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  
+  .rotation-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .week-navigation {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .doctor-grid {
+    grid-template-columns: 1fr;
+  }
+}
