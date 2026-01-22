@@ -3,9 +3,8 @@ import { Link } from 'react-router-dom';
 import { FiLogOut, FiSend, FiPaperclip, FiX, FiMessageSquare, FiPlus, FiTrash2 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import API_BASE_URL from '../config';
 import './AIConsultant.css';
-
-const API_BASE_URL = 'http://localhost:5000/api/v1';
 
 function AIConsultant({ user, onLogout }) {
   const [messages, setMessages] = useState([

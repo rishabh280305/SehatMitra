@@ -3,9 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { FiLogOut, FiSend, FiPaperclip, FiMic, FiImage, FiFile, FiX } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import API_BASE_URL from '../config';
 import './Consultation.css';
-
-const API_BASE_URL = 'http://localhost:5000/api/v1';
 
 function Consultation({ user, onLogout }) {
   const location = useLocation();

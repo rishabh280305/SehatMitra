@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API_BASE_URL from '../config';
 import './ConsultationHistory.css';
 
 function ConsultationHistory() {
@@ -17,7 +18,7 @@ function ConsultationHistory() {
       setLoading(true);
       const token = localStorage.getItem('token');
       
-      const response = await axios.get('http://localhost:5000/api/v1/consultations/messages', {
+      const response = await axios.get(`${API_BASE_URL}/consultations/messages`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 

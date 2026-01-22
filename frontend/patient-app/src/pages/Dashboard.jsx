@@ -1,88 +1,102 @@
 import { Link } from 'react-router-dom';
-import { FiLogOut, FiMessageSquare, FiFileText, FiUserCheck, FiBell } from 'react-icons/fi';
+import { FiLogOut, FiMessageSquare, FiUserCheck, FiBell, FiUser, FiPhone, FiMail } from 'react-icons/fi';
+import { useLanguage } from '../contexts/LanguageContext';
+import FaceSetupCard from '../components/FaceSetupCard';
+import '../styles/modern.css';
 import './Dashboard.css';
 
 function Dashboard({ user, onLogout }) {
+  const { t } = useLanguage();
+  
   return (
-    <div className="dashboard">
-      <nav className="navbar">
-        <div className="container">
+    <div className="dashboard" style={{ background: 'var(--bg-primary)', minHeight: '100vh' }}>
+      <nav className="modern-header">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: '1200px', margin: '0 auto' }}>
           <h1>SehatMitra</h1>
-          <div className="nav-right">
-            <span>Welcome, {user.fullName}</span>
-            <button onClick={onLogout} className="btn btn-outline">
-              <FiLogOut /> Logout
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            <span style={{ color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <FiUser size={18} /> {user.fullName}
+            </span>
+            <button onClick={onLogout} className="btn-modern-primary">
+              <FiLogOut size={18} /> {t('common.logout')}
             </button>
           </div>
         </div>
       </nav>
 
-      <div className="container" style={{ paddingTop: '2rem' }}>
-        <div className="welcome-card card">
-          <h2>Welcome to Your Health Portal</h2>
-          <p>Access healthcare services from the comfort of your home</p>
+      <div className="container" style={{ paddingTop: '2rem', paddingBottom: '4rem' }}>
+        <div className="section-header">
+          <h3 className="section-title">{t('dashboard.healthServices')}</h3>
+          <p className="section-description">{t('dashboard.accessHealthcare')}</p>
         </div>
 
-        <div className="features-grid">
-          <Link to="/select-doctor" className="feature-card card">
-            <div className="feature-icon">
-              <FiUserCheck size={40} />
+        <div className="modern-grid fade-in-up">
+          <Link to="/select-doctor" className="feature-card">
+            <div className="icon-container">
+              <FiUserCheck size={24} />
             </div>
-            <h3>Select Doctor</h3>
-            <p>Choose a specialist for your consultation</p>
+            <div>
+              <h3>{t('dashboard.consultDoctor')}</h3>
+              <p>{t('dashboard.consultDoctorDesc')}</p>
+            </div>
           </Link>
 
-          <Link to="/consultation-history" className="feature-card card">
-            <div className="feature-icon">
-              <FiMessageSquare size={40} />
+          <Link to="/consultation-history" className="feature-card">
+            <div className="icon-container">
+              <FiMessageSquare size={24} />
             </div>
-            <h3>Consultation History</h3>
-            <p>View and continue your past consultations</p>
+            <div>
+              <h3>{t('dashboard.myConsultations')}</h3>
+              <p>{t('dashboard.myConsultationsDesc')}</p>
+            </div>
           </Link>
 
-          <Link to="/follow-up-requests" className="feature-card card">
-            <div className="feature-icon">
-              <FiBell size={40} />
+          <Link to="/follow-up-requests" className="feature-card">
+            <div className="icon-container">
+              <FiBell size={24} />
             </div>
-            <h3>Follow-up Requests</h3>
-            <p>View and respond to doctor's follow-up requests</p>
+            <div>
+              <h3>{t('dashboard.followUpRequests')}</h3>
+              <p>{t('dashboard.followUpRequestsDesc')}</p>
+            </div>
           </Link>
 
-          <Link to="/ai-consultant" className="feature-card card">
-            <div className="feature-icon">
-              <FiMessageSquare size={40} />
+          <Link to="/ai-consultant" className="feature-card">
+            <div className="icon-container">
+              <FiMessageSquare size={24} />
             </div>
-            <h3>AI Health Assistant</h3>
-            <p>Get instant health guidance and symptom analysis</p>
+            <div>
+              <h3>{t('dashboard.aiHealthAssistant')}</h3>
+              <p>{t('dashboard.aiHealthAssistantDesc')}</p>
+            </div>
           </Link>
+        </div>
 
-          <div className="feature-card card" style={{ opacity: 0.6 }}>
-            <div className="feature-icon">
-              <FiFileText size={40} />
+        <div className="profile-card mt-4" style={{ marginTop: 'var(--spacing-2xl)' }}>
+          <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <FiUser size={24} /> {t('dashboard.profileInfo')}
+          </h3>
+          <div className="profile-grid">
+            <div className="profile-item">
+              <div className="profile-item-label">{t('dashboard.fullName')}</div>
+              <div className="profile-item-value">{user.fullName}</div>
             </div>
-            <h3>Medical Records</h3>
-            <p>View and manage your medical history</p>
-            <small style={{ color: 'var(--text-secondary)' }}>Coming soon</small>
+            <div className="profile-item">
+              <div className="profile-item-label">{t('dashboard.email')}</div>
+              <div className="profile-item-value">{user.email}</div>
+            </div>
+            <div className="profile-item">
+              <div className="profile-item-label">{t('dashboard.phone')}</div>
+              <div className="profile-item-value">{user.phone}</div>
+            </div>
+            <div className="profile-item">
+              <div className="profile-item-label">{t('dashboard.accountType')}</div>
+              <div className="profile-item-value" style={{ textTransform: 'capitalize' }}>{user.role}</div>
+            </div>
           </div>
         </div>
 
-        <div className="info-section card">
-          <h3>Your Profile Information</h3>
-          <div className="info-grid">
-            <div>
-              <strong>Name:</strong> {user.fullName}
-            </div>
-            <div>
-              <strong>Email:</strong> {user.email}
-            </div>
-            <div>
-              <strong>Phone:</strong> {user.phone}
-            </div>
-            <div>
-              <strong>Role:</strong> {user.role}
-            </div>
-          </div>
-        </div>
+        <FaceSetupCard user={user} />
       </div>
     </div>
   );

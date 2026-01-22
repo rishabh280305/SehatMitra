@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API_BASE_URL from '../config';
 import './DoctorSelection.css';
 
 function DoctorSelection() {
@@ -41,9 +42,9 @@ function DoctorSelection() {
 
       console.log('Fetching doctors from API...');
       console.log('Token:', token ? 'Present' : 'Missing');
-      console.log('URL:', 'http://localhost:5000/api/v1/doctors');
+      console.log('URL:', `${API_BASE_URL}/doctors`);
 
-      const response = await axios.get('http://localhost:5000/api/v1/doctors', {
+      const response = await axios.get(`${API_BASE_URL}/doctors`, {
         headers: { Authorization: `Bearer ${token}` },
         params
       });

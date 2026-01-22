@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react';
 import { FiInfo, FiPhone, FiVideo, FiCheckCircle, FiXCircle, FiClock } from 'react-icons/fi';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import API_BASE_URL from '../config';
 import './FollowUpRequests.css';
-
-const API_BASE_URL = 'http://localhost:5000/api/v1';
 
 function FollowUpRequests() {
   const [requests, setRequests] = useState([]);

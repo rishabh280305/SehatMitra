@@ -2,18 +2,41 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { authService } from '../services/api';
+import { useLanguage } from '../contexts/LanguageContext';
+import FaceCapture from '../components/FaceCapture';
 import './Auth.css';
 
 function Login({ setUser }) {
   const navigate = useNavigate();
+  const { language, changeLanguage, t } = useLanguage();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
   const [loading, setLoading] = useState(false);
+  const [showFaceCapture, setShowFaceCapture] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleFaceCapture = async (faceDescriptor) => {
+    setLoading(true);
+    try {
+      const response = await authService.faceLogin({
+        email: formData.email,
+        faceDescriptor
+      });
+      
+      setUser(response.user);
+      toast.success('Face verification successful!');
+      navigate('/dashboard');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Face verification failed');
+      setShowFaceCapture(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -34,52 +57,81 @@ function Login({ setUser }) {
 
   return (
     <div className="auth-container">
-      <div className="auth-card">
-        <div className="auth-header">
-          <h1>SehatMitra</h1>
-          <h2>Patient Portal</h2>
-          <p>Access healthcare from anywhere</p>
+      {showFaceCapture ? (
+        <FaceCapture onFaceCapture={handleFaceCapture} mode="login" />
+      ) : (
+        <div className="auth-card">
+          <div className="auth-header">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h1>SehatMitra</h1>
+            <select 
+              value={language} 
+              onChange={(e) => changeLanguage(e.target.value)}
+              style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)' }}
+            >
+              <option value="en">English</option>
+              <option value="hi">हिंदी</option>
+              <option value="mr">मराठी</option>
+              <option value="gu">ગુજરાતી</option>
+            </select>
+          </div>
+          <h2>{t('login.title')}</h2>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="input-group">
-            <label>Email or Phone</label>
+            <label>{t('login.email')}</label>
             <input
               type="text"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="Enter email or phone number"
+              placeholder={t('login.email')}
               required
             />
           </div>
 
           <div className="input-group">
-            <label>Password</label>
+            <label>{t('login.password')}</label>
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="Enter password"
+              placeholder={t('login.password')}
               required
             />
           </div>
 
           <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? t('common.loading') : t('login.loginButton')}
           </button>
         </form>
 
-        <div className="auth-footer">
-          <p>Don't have an account? <Link to="/register">Register here</Link></p>
+        <div className="divider">
+          <span>OR</span>
         </div>
 
-        <div className="demo-credentials">
-          <p><strong>Quick Test:</strong></p>
-          <p>Register a new account or use demo credentials after registration</p>
+        <button
+          onClick={() => {
+            if (!formData.email) {
+              toast.error('Please enter your email first');
+              return;
+            }
+            setShowFaceCapture(true);
+          }}
+          className="btn-face-login"
+          disabled={loading}
+        >
+          <span style={{ fontSize: '1.5rem', marginRight: '0.5rem' }}>👤</span>
+          Login with Face Verification
+        </button>
+
+        <div className="auth-footer">
+          <p>{t('login.noAccount')} <Link to="/register">{t('login.registerLink')}</Link></p>
         </div>
       </div>
+      )}
     </div>
   );
 }

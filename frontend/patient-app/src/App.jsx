@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { authService } from './services/api';
+import { LanguageProvider } from './contexts/LanguageContext';
+import { CallProvider } from './contexts/CallContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
@@ -11,7 +13,6 @@ import Consultation from './pages/Consultation';
 import FollowUpRequests from './pages/FollowUpRequests';
 import DoctorSelection from './pages/DoctorSelection';
 import ConsultationHistory from './pages/ConsultationHistory';
-import IncomingCall from './components/IncomingCall';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -33,10 +34,11 @@ function App() {
   }
 
   return (
-    <Router>
-      <ToastContainer position="top-right" autoClose={3000} />
-      {user && <IncomingCall />}
-      <Routes>
+    <LanguageProvider>
+      <CallProvider user={user}>
+        <Router>
+          <ToastContainer position="top-right" autoClose={3000} />
+          <Routes>
         <Route 
           path="/login" 
           element={!user ? <Login setUser={setUser} /> : <Navigate to="/dashboard" />} 
@@ -72,6 +74,8 @@ function App() {
         <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
       </Routes>
     </Router>
+    </CallProvider>
+    </LanguageProvider>
   );
 }
 

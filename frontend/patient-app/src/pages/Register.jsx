@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { authService } from '../services/api';
+import FaceCapture from '../components/FaceCapture';
 import './Auth.css';
 
 function Register({ setUser }) {
@@ -16,9 +17,17 @@ function Register({ setUser }) {
     role: 'patient'
   });
   const [loading, setLoading] = useState(false);
+  const [showFaceCapture, setShowFaceCapture] = useState(false);
+  const [faceDescriptor, setFaceDescriptor] = useState(null);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleFaceCapture = (capturedDescriptor) => {
+    setFaceDescriptor(capturedDescriptor);
+    setShowFaceCapture(false);
+    toast.success('✅ Face captured! Complete registration to save.');
   };
 
   const handleSubmit = async (e) => {
@@ -26,9 +35,15 @@ function Register({ setUser }) {
     setLoading(true);
 
     try {
-      const data = await authService.register(formData);
+      const submitData = { ...formData };
+      if (faceDescriptor) {
+        submitData.faceDescriptor = faceDescriptor;
+        submitData.faceVerificationEnabled = true;
+      }
+      
+      const data = await authService.register(submitData);
       setUser(data.user);
-      toast.success('Registration successful!');
+      toast.success(faceDescriptor ? 'Registration successful with face verification!' : 'Registration successful!');
       navigate('/dashboard');
     } catch (error) {
       toast.error(error.response?.data?.message || error.response?.data?.error || 'Registration failed');
@@ -39,7 +54,26 @@ function Register({ setUser }) {
 
   return (
     <div className="auth-container">
-      <div className="auth-card">
+      {showFaceCapture ? (
+        <div>
+          <button 
+            onClick={() => setShowFaceCapture(false)}
+            style={{
+              marginBottom: '1rem',
+              padding: '0.5rem 1rem',
+              background: '#666',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            ← Back to Registration
+          </button>
+          <FaceCapture onFaceCapture={handleFaceCapture} mode="register" />
+        </div>
+      ) : (
+        <div className="auth-card">
         <div className="auth-header">
           <h1>SehatMitra</h1>
           <h2>Patient Registration</h2>
@@ -121,6 +155,42 @@ function Register({ setUser }) {
             />
           </div>
 
+          <div style={{
+            background: faceDescriptor ? '#e8f5e9' : '#fff3e0',
+            border: `2px solid ${faceDescriptor ? '#4caf50' : '#ff9800'}`,
+            borderRadius: '8px',
+            padding: '1rem',
+            marginBottom: '1rem'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <span style={{ fontSize: '2rem' }}>{faceDescriptor ? '✅' : '👤'}</span>
+              <div style={{ flex: 1 }}>
+                <strong style={{ display: 'block', marginBottom: '0.25rem' }}>
+                  {faceDescriptor ? 'Face Registered' : 'Optional: Register Face'}
+                </strong>
+                <small style={{ color: '#666' }}>
+                  {faceDescriptor ? 'You can login with face verification' : 'Enable quick login with face verification'}
+                </small>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowFaceCapture(true)}
+                style={{
+                  padding: '0.5rem 1rem',
+                  background: faceDescriptor ? '#2196f3' : '#4caf50',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  fontWeight: 600
+                }}
+              >
+                {faceDescriptor ? 'Recapture' : 'Capture Face'}
+              </button>
+            </div>
+          </div>
+
           <button type="submit" className="btn btn-primary" disabled={loading}>
             {loading ? 'Creating Account...' : 'Register'}
           </button>
@@ -130,6 +200,7 @@ function Register({ setUser }) {
           <p>Already have an account? <Link to="/login">Login here</Link></p>
         </div>
       </div>
+      )}
     </div>
   );
 }
