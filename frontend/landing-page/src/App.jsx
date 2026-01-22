@@ -8,7 +8,7 @@ function App() {
       description: 'Book consultations, chat with doctors, and manage your health records',
       icon: '👤',
       color: '#4F46E5',
-      port: 3000,
+      url: process.env.REACT_APP_PATIENT_URL || 'http://localhost:3000',
       gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
     },
     {
@@ -16,7 +16,7 @@ function App() {
       description: 'Register patients, assist with consultations, and manage community health',
       icon: '🏥',
       color: '#10B981',
-      port: 3001,
+      url: process.env.REACT_APP_ASHA_URL || 'http://localhost:3001',
       gradient: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)'
     },
     {
@@ -24,13 +24,13 @@ function App() {
       description: 'View patient consultations, schedule calls, and provide medical care',
       icon: '⚕️',
       color: '#F59E0B',
-      port: 3002,
+      url: process.env.REACT_APP_DOCTOR_URL || 'http://localhost:3002',
       gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
     }
   ];
 
-  const handlePortalClick = (port) => {
-    window.location.href = `http://localhost:${port}`;
+  const handlePortalClick = (url) => {
+    window.location.href = url;
   };
 
   return (
@@ -49,7 +49,7 @@ function App() {
             <div
               key={index}
               className="portal-card"
-              onClick={() => handlePortalClick(portal.port)}
+              onClick={() => handlePortalClick(portal.url)}
               style={{ '--portal-gradient': portal.gradient }}
             >
               <div className="portal-icon">{portal.icon}</div>
