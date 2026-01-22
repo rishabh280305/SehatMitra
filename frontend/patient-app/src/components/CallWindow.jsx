@@ -16,7 +16,7 @@ const CallWindow = ({
 }) => {
   const [callStatus, setCallStatus] = useState(isIncoming ? 'incoming' : 'connecting');
   const [isMuted, setIsMuted] = useState(false);
-  const [isVideoOn, setIsVideoOn] = useState(callType === 'video');
+  const [isVideoOn, setIsVideoOn] = useState(true); // Always start with video
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [translatedText, setTranslatedText] = useState('');
   const [isListening, setIsListening] = useState(false);
@@ -46,18 +46,25 @@ const CallWindow = ({
 
   const initializeCall = async () => {
     try {
-      // Get local media stream
+      // Get local media stream - always enable video for better experience
       const constraints = {
         audio: true,
-        video: callType === 'video' ? { width: 1280, height: 720 } : false
+        video: { 
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          facingMode: 'user'
+        }
       };
 
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       localStreamRef.current = stream;
 
-      if (localVideoRef.current && callType === 'video') {
+      if (localVideoRef.current) {
         localVideoRef.current.srcObject = stream;
+        localVideoRef.current.muted = true; // Prevent echo
       }
+      
+      setIsVideoOn(true); // Always start with video on
 
       // Create peer connection
       const peerConnection = new RTCPeerConnection(configuration);
@@ -284,28 +291,28 @@ const CallWindow = ({
       </div>
 
       <div className="video-container">
-        {callType === 'video' && (
-          <>
-            <video
-              ref={remoteVideoRef}
-              autoPlay
-              playsInline
-              className="remote-video"
-            />
-            <video
-              ref={localVideoRef}
-              autoPlay
-              playsInline
-              muted
-              className="local-video"
-            />
-          </>
-        )}
+        {/* Always show video elements for better call experience */}
+        <video
+          ref={remoteVideoRef}
+          autoPlay
+          playsInline
+          className="remote-video"
+          style={{ display: isVideoOn ? 'block' : 'none' }}
+        />
+        <video
+          ref={localVideoRef}
+          autoPlay
+          playsInline
+          muted
+          className="local-video"
+          style={{ display: isVideoOn ? 'block' : 'none' }}
+        />
         
-        {callType === 'voice' && (
+        {!isVideoOn && (
           <div className="voice-call-display">
             <div className="avatar-large">{remoteName.charAt(0).toUpperCase()}</div>
             <h2>{remoteName}</h2>
+            <p className="call-status-text">{callStatus}</p>
           </div>
         )}
 
@@ -339,15 +346,13 @@ const CallWindow = ({
             {isMuted ? <FiMicOff size={24} /> : <FiMic size={24} />}
           </button>
 
-          {callType === 'video' && (
-            <button 
-              className={`btn-control ${!isVideoOn ? 'active' : ''}`} 
-              onClick={toggleVideo}
-              title={isVideoOn ? 'Turn off video' : 'Turn on video'}
-            >
-              {isVideoOn ? <FiVideo size={24} /> : <FiVideoOff size={24} />}
-            </button>
-          )}
+          <button 
+            className={`btn-control ${!isVideoOn ? 'active' : ''}`} 
+            onClick={toggleVideo}
+            title={isVideoOn ? 'Turn off video' : 'Turn on video'}
+          >
+            {isVideoOn ? <FiVideo size={24} /> : <FiVideoOff size={24} />}
+          </button>
 
           <button 
             className={`btn-control ${isListening ? 'active listening' : ''}`} 

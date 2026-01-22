@@ -93,6 +93,10 @@ function FaceCapture({ onFaceCapture, mode = 'register' }) {
 
       if (detections.length > 0) {
         setFaceDetected(true);
+        // Auto-capture for login mode
+        if (mode === 'login' && !capturing) {
+          captureFace();
+        }
       } else {
         setFaceDetected(false);
       }
@@ -100,7 +104,7 @@ function FaceCapture({ onFaceCapture, mode = 'register' }) {
   };
 
   const captureFace = async () => {
-    if (!videoRef.current || !faceDetected) return;
+    if (!videoRef.current || !faceDetected || capturing) return;
 
     setCapturing(true);
     setError('');
@@ -183,15 +187,25 @@ function FaceCapture({ onFaceCapture, mode = 'register' }) {
         </div>
       </div>
 
-      <div className="capture-controls">
-        <button
-          onClick={captureFace}
-          disabled={!faceDetected || capturing || loading}
-          className="btn-capture"
-        >
-          {capturing ? 'Capturing...' : mode === 'register' ? 'Capture Face' : 'Verify Face'}
-        </button>
-      </div>
+      {mode === 'register' && (
+        <div className="capture-controls">
+          <button
+            onClick={captureFace}
+            disabled={!faceDetected || capturing || loading}
+            className="btn-capture"
+          >
+            {capturing ? 'Capturing...' : 'Capture Face'}
+          </button>
+        </div>
+      )}
+      
+      {mode === 'login' && capturing && (
+        <div className="capture-controls">
+          <p style={{ color: '#4caf50', fontWeight: 600, fontSize: '1.1rem' }}>
+            🔐 Verifying your identity...
+          </p>
+        </div>
+      )}
 
       <div className="instructions">
         <h4>Instructions:</h4>
