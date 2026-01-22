@@ -1,0 +1,61 @@
+========================================
+SEHATMITRA - SETUP INSTRUCTIONS
+========================================
+
+IMPORTANT: Read this to see dummy patients!
+
+STEP 1: Create ASHA Worker Account
+-----------------------------------
+1. Open terminal in backend folder
+2. Run: npm start
+3. Open terminal in frontend/asha-worker-app
+4. Run: npm run dev
+5. Go to http://localhost:3001
+6. Click "Register" and create ASHA worker account
+7. Remember your login details!
+
+STEP 2: (Optional) Create Doctor Account
+-----------------------------------------
+1. Open terminal in frontend/doctor-app
+2. Run: npm run dev
+3. Go to http://localhost:3002
+4. Click "Register" and create doctor account
+
+STEP 3: Seed Dummy Data
+------------------------
+DOUBLE-CLICK THIS FILE: seed-data.bat
+
+This will create:
+- 5 realistic patients in your database
+- 4 consultations with doctors
+- All patients assigned to your ASHA worker
+
+STEP 4: Refresh and See Data
+-----------------------------
+1. Go back to http://localhost:3001 (ASHA app)
+2. Refresh the page (F5)
+3. You should now see:
+   - 5 patients in stats
+   - "Follow-up with Geeta Sharma" task (clickable!)
+   - Click tasks to mark them as done
+   - Go to "My Patients" to see all 5 patients
+
+4. For Doctor (http://localhost:3002):
+   - You'll see 4 patients in queue
+   - Each shows the ASHA worker who referred them
+
+FEATURES YOU CAN USE:
+---------------------
+✓ Click any stat card to navigate
+✓ Click "Follow-up with Geeta Sharma" task
+✓ Mark tasks as done/undone
+✓ Click "Send to Doctor" on pending patients
+✓ See real patient data (no fake 156 numbers!)
+
+TROUBLESHOOTING:
+----------------
+- If you see 0 patients: You forgot to run seed-data.bat
+- If seed fails: Make sure you created ASHA worker account first
+- If tasks don't work: Clear browser cache and refresh
+
+Need help? Check README.md for full documentation.

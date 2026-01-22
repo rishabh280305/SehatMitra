@@ -1,0 +1,251 @@
+.scheduled-calls-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-header h1 {
+  margin: 0 0 8px 0;
+  color: #1a202c;
+  font-size: 28px;
+}
+
+.page-header p {
+  margin: 0;
+  color: #64748b;
+}
+
+.loading,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  color: #64748b;
+  text-align: center;
+}
+
+.empty-state svg {
+  color: #cbd5e1;
+  margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+  margin: 1rem 0 0.5rem 0;
+  color: #475569;
+}
+
+.calls-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.call-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+}
+
+.call-card.pending {
+  border-left-color: #f59e0b;
+}
+
+.call-card.accepted {
+  border-left-color: #10b981;
+}
+
+.call-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.call-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.call-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.call-type {
+  flex: 1;
+  font-weight: 600;
+  font-size: 16px;
+  color: #1a202c;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-badge.pending {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.status-badge.accepted {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.call-details {
+  margin-bottom: 16px;
+}
+
+.patient-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.patient-info svg {
+  color: #667eea;
+  flex-shrink: 0;
+}
+
+.patient-name {
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.patient-meta {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.schedule-info {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #475569;
+  font-size: 14px;
+}
+
+.info-row svg {
+  color: #94a3b8;
+}
+
+.call-notes {
+  padding: 12px;
+  background: #fef3c7;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #78350f;
+}
+
+.call-notes strong {
+  color: #92400e;
+}
+
+.call-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-join,
+.btn-mark-completed,
+.btn-mark-missed {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-join {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.btn-join:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-join:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-mark-completed {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.btn-mark-completed:hover {
+  background: #a7f3d0;
+}
+
+.btn-mark-missed {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.btn-mark-missed:hover {
+  background: #fecaca;
+}
+
+.approval-status {
+  padding: 12px;
+  background: #f1f5f9;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.approval-status p {
+  margin: 0 0 4px 0;
+  font-weight: 600;
+  color: #475569;
+  font-size: 14px;
+}
+
+.approval-status small {
+  color: #64748b;
+  font-size: 12px;
+}
+
+@media (max-width: 768px) {
+  .calls-grid {
+    grid-template-columns: 1fr;
+  }
+}
