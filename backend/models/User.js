@@ -58,6 +58,24 @@ const userSchema = new mongoose.Schema({
     }
   },
   
+  // Language Preference (for multilingual support)
+  language: {
+    type: String,
+    enum: ['en', 'hi', 'mr', 'gu'],
+    default: 'en'
+  },
+  
+  // Face Verification (for ASHA workers)
+  faceDescriptor: {
+    type: [Number], // Array of 128 numbers from face-api.js
+    default: null,
+    select: false // Don't return by default for security
+  },
+  faceVerificationEnabled: {
+    type: Boolean,
+    default: false
+  },
+  
   // Location Information
   location: {
     address: {

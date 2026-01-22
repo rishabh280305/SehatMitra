@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const { generateToken, sendTokenResponse } = require('../middleware/auth');
+const { compareFaces, isValidDescriptor } = require('../utils/faceVerification');
 
 /**
  * @desc    Register new user
@@ -8,6 +9,9 @@ const { generateToken, sendTokenResponse } = require('../middleware/auth');
  */
 exports.register = async (req, res, next) => {
   try {
+    console.log('===== REGISTRATION REQUEST =====');
+    console.log('Body:', JSON.stringify(req.body, null, 2));
+    
     const {
       fullName,
       email,
@@ -18,9 +22,43 @@ exports.register = async (req, res, next) => {
       gender,
       location,
       ashaWorkerDetails,
-      doctorDetails
+      doctorDetails,
+      faceDescriptor,
+      faceVerificationEnabled
     } = req.body;
 
+    // Validate required fields
+    if (!fullName || !email || !phone || !password || !role) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide all required fields: fullName, email, phone, password, role'
+      });
+    }
+
+    // Validate face descriptor if provided
+    if (faceDescriptor && !isValidDescriptor(faceDescriptor)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid face descriptor. Must be array of 128 numbers.'
+      });
+    }
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ $or: [{ email }, { phone }] });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: existingUser.email === email 
+          ? 'Email already registered' 
+          : 'Phone number already registered'
+      });
+    }
+
+    console.log('Creating user with role:', role);
+    if (faceDescriptor) {
+      console.log('Face verification will be enabled during registration');
+    }
+    
     // Create user
     const user = await User.create({
       fullName,
@@ -32,11 +70,16 @@ exports.register = async (req, res, next) => {
       gender,
       location,
       ashaWorkerDetails: role === 'asha_worker' ? ashaWorkerDetails : undefined,
-      doctorDetails: role === 'doctor' ? doctorDetails : undefined
+      doctorDetails: role === 'doctor' ? doctorDetails : undefined,
+      faceDescriptor: faceDescriptor || undefined,
+      faceVerificationEnabled: faceDescriptor ? true : false
     });
 
+    console.log('User created successfully:', user._id);
+    
     sendTokenResponse(user, 201, res, 'User registered successfully');
   } catch (error) {
+    console.error('Registration error:', error);
     next(error);
   }
 };
@@ -236,6 +279,119 @@ exports.updateFcmToken = async (req, res, next) => {
       data: user
     });
   } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Login with face verification
+ * @route   POST /api/v1/auth/face-login
+ * @access  Public
+ */
+exports.faceLogin = async (req, res, next) => {
+  try {
+    const { email, faceDescriptor } = req.body;
+
+    // Validate input
+    if (!email || !faceDescriptor) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email and face descriptor are required'
+      });
+    }
+
+    // Validate face descriptor format
+    if (!isValidDescriptor(faceDescriptor)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid face descriptor format'
+      });
+    }
+
+    // Find user by email
+    const user = await User.findOne({ email }).select('+faceDescriptor');
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Check if user has face verification enabled
+    if (!user.faceVerificationEnabled || !user.faceDescriptor) {
+      return res.status(400).json({
+        success: false,
+        message: 'Face verification not set up for this account. Please register your face first.'
+      });
+    }
+
+    // Compare faces
+    const comparisonResult = compareFaces(faceDescriptor, user.faceDescriptor);
+
+    if (!comparisonResult.isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Face verification failed. Please try again or use password login.',
+        debug: {
+          confidence: comparisonResult.confidence,
+          distance: comparisonResult.distance
+        }
+      });
+    }
+
+    console.log(`Face verification successful for ${email} (confidence: ${comparisonResult.confidence}%)`);
+
+    sendTokenResponse(user, 200, res, 'Face login successful');
+  } catch (error) {
+    console.error('Face login error:', error);
+    next(error);
+  }
+};
+
+/**
+ * @desc    Register face for existing user
+ * @route   POST /api/v1/auth/register-face
+ * @access  Private
+ */
+exports.registerFace = async (req, res, next) => {
+  try {
+    const { faceDescriptor } = req.body;
+
+    if (!faceDescriptor) {
+      return res.status(400).json({
+        success: false,
+        message: 'Face descriptor is required'
+      });
+    }
+
+    // Validate face descriptor format
+    if (!isValidDescriptor(faceDescriptor)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid face descriptor format. Must be array of 128 numbers.'
+      });
+    }
+
+    // Update user with face descriptor
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      {
+        faceDescriptor,
+        faceVerificationEnabled: true
+      },
+      { new: true, runValidators: false }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Face registered successfully. You can now login with face verification.',
+      data: {
+        faceVerificationEnabled: user.faceVerificationEnabled
+      }
+    });
+  } catch (error) {
+    console.error('Face registration error:', error);
     next(error);
   }
 };

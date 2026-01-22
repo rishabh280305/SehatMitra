@@ -1,19 +1,28 @@
 const express = require('express');
 const router = express.Router();
-const { 
-  initiateCall, 
-  updateCallStatus, 
-  addTranscriptSegment,
-  getCallHistory,
-  getCallDetails
-} = require('../controllers/call.controller');
 const { protect } = require('../middleware/auth');
+const {
+  initiateCall,
+  answerCall,
+  rejectCall,
+  endCall,
+  getPendingCalls,
+  addIceCandidate,
+  getCallStatus
+} = require('../controllers/call.controller');
 
-// Call management routes
-router.post('/initiate', protect, initiateCall);
-router.put('/:callId/status', protect, updateCallStatus);
-router.post('/:callId/transcript', protect, addTranscriptSegment);
-router.get('/history', protect, getCallHistory);
-router.get('/:callId', protect, getCallDetails);
+// All routes require authentication
+router.use(protect);
+
+// Call management
+router.post('/initiate', initiateCall);
+router.post('/answer', answerCall);
+router.post('/reject', rejectCall);
+router.post('/end', endCall);
+router.post('/ice-candidate', addIceCandidate);
+
+// Polling endpoints
+router.get('/pending', getPendingCalls);
+router.get('/status/:callId', getCallStatus);
 
 module.exports = router;

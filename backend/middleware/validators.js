@@ -52,6 +52,11 @@ exports.registerValidation = [
     .optional()
     .isIn(['male', 'female', 'other', 'prefer_not_to_say']).withMessage('Invalid gender'),
   
+  // Allow nested objects for role-specific details
+  body('doctorDetails').optional(),
+  body('ashaWorkerDetails').optional(),
+  body('location').optional(),
+  
   exports.validate
 ];
 

@@ -1,189 +1,290 @@
-const CallSession = require('../models/CallSession');
+const Call = require('../models/Call');
 const User = require('../models/User');
-const Patient = require('../models/Patient');
-const { v4: uuidv4 } = require('uuid');
 
-// Initiate a call
-const initiateCall = async (req, res) => {
+/**
+ * @desc    Initiate a call
+ * @route   POST /api/v1/calls/initiate
+ * @access  Private
+ */
+exports.initiateCall = async (req, res, next) => {
   try {
-    const { receiverId, receiverType, patientId, consultationId } = req.body;
-    
-    if (!receiverId || !receiverType) {
-      return res.status(400).json({ message: 'Receiver ID and type are required' });
+    const { receiverId, callType, offer } = req.body;
+
+    if (!receiverId || !callType) {
+      return res.status(400).json({
+        success: false,
+        message: 'Receiver ID and call type are required'
+      });
     }
 
-    // Only doctors can initiate calls
-    if (req.user.role !== 'doctor') {
-      return res.status(403).json({ message: 'Only doctors can initiate calls' });
-    }
-
-    const caller = await User.findById(req.user.id);
+    // Get receiver details
     const receiver = await User.findById(receiverId);
-
     if (!receiver) {
-      return res.status(404).json({ message: 'Receiver not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'Receiver not found'
+      });
     }
 
-    const callId = uuidv4();
-
-    const callSession = await CallSession.create({
+    // Create call session
+    const callId = `${req.user.id}-${receiverId}-${Date.now()}`;
+    const call = await Call.create({
       callId,
-      caller: {
-        user: req.user.id,
-        userType: 'doctor',
-        name: caller.fullName
-      },
-      receiver: {
-        user: receiverId,
-        userType: receiverType,
-        name: receiver.fullName
-      },
-      patient: patientId || null,
-      consultation: consultationId || null,
+      caller: req.user.id,
+      callerName: req.user.fullName,
+      receiver: receiverId,
+      receiverName: receiver.fullName,
+      callType,
+      offer,
       status: 'ringing'
     });
+
+    console.log(`📞 Call initiated: ${req.user.fullName} calling ${receiver.fullName} (${callType})`);
 
     res.status(201).json({
       success: true,
       message: 'Call initiated',
-      data: callSession
+      data: {
+        callId: call.callId,
+        receiver: {
+          id: receiver._id,
+          name: receiver.fullName
+        },
+        callType: call.callType,
+        status: call.status
+      }
     });
   } catch (error) {
-    console.error('Error initiating call:', error);
-    res.status(500).json({ message: 'Error initiating call', error: error.message });
+    console.error('Initiate call error:', error);
+    next(error);
   }
 };
 
-// Update call status
-const updateCallStatus = async (req, res) => {
+/**
+ * @desc    Answer a call
+ * @route   POST /api/v1/calls/answer
+ * @access  Private
+ */
+exports.answerCall = async (req, res, next) => {
   try {
-    const { callId } = req.params;
-    const { status, startTime, endTime, duration } = req.body;
+    const { callId, answer } = req.body;
 
-    const callSession = await CallSession.findOne({ callId });
-
-    if (!callSession) {
-      return res.status(404).json({ message: 'Call session not found' });
+    if (!callId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Call ID is required'
+      });
     }
 
-    callSession.status = status;
-    
-    if (startTime) callSession.startTime = startTime;
-    if (endTime) callSession.endTime = endTime;
-    if (duration) callSession.duration = duration;
-
-    await callSession.save();
-
-    res.status(200).json({
-      success: true,
-      message: 'Call status updated',
-      data: callSession
-    });
-  } catch (error) {
-    console.error('Error updating call status:', error);
-    res.status(500).json({ message: 'Error updating call status', error: error.message });
-  }
-};
-
-// Add transcript segment
-const addTranscriptSegment = async (req, res) => {
-  try {
-    const { callId } = req.params;
-    const { speaker, text, timestamp } = req.body;
-
-    const callSession = await CallSession.findOne({ callId });
-
-    if (!callSession) {
-      return res.status(404).json({ message: 'Call session not found' });
-    }
-
-    callSession.transcriptSegments.push({
-      speaker,
-      text,
-      timestamp: timestamp || new Date()
-    });
-
-    // Update full transcript
-    callSession.transcript = callSession.transcriptSegments
-      .map(seg => `[${seg.speaker}]: ${seg.text}`)
-      .join('\n');
-
-    await callSession.save();
-
-    res.status(200).json({
-      success: true,
-      message: 'Transcript segment added',
-      data: callSession
-    });
-  } catch (error) {
-    console.error('Error adding transcript:', error);
-    res.status(500).json({ message: 'Error adding transcript', error: error.message });
-  }
-};
-
-// Get call history for a user
-const getCallHistory = async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { limit = 50, skip = 0 } = req.query;
-
-    const calls = await CallSession.find({
-      $or: [
-        { 'caller.user': userId },
-        { 'receiver.user': userId }
-      ]
-    })
-      .sort({ createdAt: -1 })
-      .limit(parseInt(limit))
-      .skip(parseInt(skip))
-      .populate('patient', 'name age gender')
-      .populate('consultation');
-
-    res.status(200).json({
-      success: true,
-      data: calls
-    });
-  } catch (error) {
-    console.error('Error fetching call history:', error);
-    res.status(500).json({ message: 'Error fetching call history', error: error.message });
-  }
-};
-
-// Get call details with transcript
-const getCallDetails = async (req, res) => {
-  try {
-    const { callId } = req.params;
-
-    const call = await CallSession.findOne({ callId })
-      .populate('caller.user', 'fullName email phone')
-      .populate('receiver.user', 'fullName email phone')
-      .populate('patient', 'name age gender')
-      .populate('consultation');
-
+    const call = await Call.findOne({ callId });
     if (!call) {
-      return res.status(404).json({ message: 'Call not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'Call not found'
+      });
     }
 
-    // Check if user has access to this call
-    const userId = req.user.id;
-    if (call.caller.user._id.toString() !== userId && call.receiver.user._id.toString() !== userId) {
-      return res.status(403).json({ message: 'Access denied' });
+    // Verify user is the receiver
+    if (call.receiver.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'Unauthorized to answer this call'
+      });
     }
+
+    call.status = 'active';
+    call.answer = answer;
+    await call.save();
+
+    console.log(`✅ Call answered: ${callId}`);
 
     res.status(200).json({
       success: true,
-      data: call
+      message: 'Call answered',
+      data: {
+        callId: call.callId,
+        status: call.status,
+        answer: call.answer
+      }
     });
   } catch (error) {
-    console.error('Error fetching call details:', error);
-    res.status(500).json({ message: 'Error fetching call details', error: error.message });
+    console.error('Answer call error:', error);
+    next(error);
   }
 };
 
-module.exports = {
-  initiateCall,
-  updateCallStatus,
-  addTranscriptSegment,
-  getCallHistory,
-  getCallDetails
+/**
+ * @desc    Reject a call
+ * @route   POST /api/v1/calls/reject
+ * @access  Private
+ */
+exports.rejectCall = async (req, res, next) => {
+  try {
+    const { callId } = req.body;
+
+    const call = await Call.findOne({ callId });
+    if (!call) {
+      return res.status(404).json({
+        success: false,
+        message: 'Call not found'
+      });
+    }
+
+    call.status = 'rejected';
+    call.endTime = Date.now();
+    await call.save();
+
+    console.log(`❌ Call rejected: ${callId}`);
+
+    res.status(200).json({
+      success: true,
+      message: 'Call rejected'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    End a call
+ * @route   POST /api/v1/calls/end
+ * @access  Private
+ */
+exports.endCall = async (req, res, next) => {
+  try {
+    const { callId } = req.body;
+
+    const call = await Call.findOne({ callId });
+    if (!call) {
+      return res.status(404).json({
+        success: false,
+        message: 'Call not found'
+      });
+    }
+
+    call.status = 'ended';
+    call.endTime = Date.now();
+    await call.save();
+
+    console.log(`📴 Call ended: ${callId}`);
+
+    res.status(200).json({
+      success: true,
+      message: 'Call ended'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Add ICE candidate
+ * @route   POST /api/v1/calls/ice-candidate
+ * @access  Private
+ */
+exports.addIceCandidate = async (req, res, next) => {
+  try {
+    const { callId, candidate } = req.body;
+
+    const call = await Call.findOne({ callId });
+    if (!call) {
+      return res.status(404).json({
+        success: false,
+        message: 'Call not found'
+      });
+    }
+
+    call.iceCandidates.push({
+      from: req.user.id,
+      candidate
+    });
+    await call.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'ICE candidate added'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Get pending calls for user (polling endpoint)
+ * @route   GET /api/v1/calls/pending
+ * @access  Private
+ */
+exports.getPendingCalls = async (req, res, next) => {
+  try {
+    // Find calls where user is receiver and status is ringing
+    const calls = await Call.find({
+      receiver: req.user.id,
+      status: 'ringing',
+      createdAt: { $gte: new Date(Date.now() - 60000) } // Last 1 minute
+    }).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: calls.length,
+      data: calls.map(call => ({
+        callId: call.callId,
+        caller: {
+          id: call.caller,
+          name: call.callerName
+        },
+        callType: call.callType,
+        offer: call.offer,
+        createdAt: call.createdAt
+      }))
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Get call status (for both parties)
+ * @route   GET /api/v1/calls/status/:callId
+ * @access  Private
+ */
+exports.getCallStatus = async (req, res, next) => {
+  try {
+    const { callId } = req.params;
+
+    const call = await Call.findOne({ callId });
+    if (!call) {
+      return res.status(404).json({
+        success: false,
+        message: 'Call not found'
+      });
+    }
+
+    // Only caller or receiver can check status
+    if (call.caller.toString() !== req.user.id && call.receiver.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'Unauthorized'
+      });
+    }
+
+    // Get new ICE candidates for this user
+    const userId = req.user.id;
+    const otherUserId = call.caller.toString() === userId ? call.receiver.toString() : call.caller.toString();
+    const newIceCandidates = call.iceCandidates
+      .filter(ice => ice.from === otherUserId)
+      .map(ice => ice.candidate);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        callId: call.callId,
+        status: call.status,
+        answer: call.answer,
+        offer: call.offer,
+        iceCandidates: newIceCandidates
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
 };

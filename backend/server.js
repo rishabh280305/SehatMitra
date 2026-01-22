@@ -7,6 +7,7 @@ const compression = require('compression');
 const mongoSanitize = require('express-mongo-sanitize');
 const hpp = require('hpp');
 const rateLimit = require('express-rate-limit');
+const mongoose = require('mongoose');
 
 // Load environment variables
 dotenv.config();
@@ -20,8 +21,20 @@ const errorHandler = require('./middleware/errorHandler');
 // Create Express app
 const app = express();
 
-// Connect to database
-connectDB();
+// Connect to database (async in serverless, will reconnect on each cold start)
+let dbConnection = null;
+const initDB = async () => {
+  if (!dbConnection) {
+    dbConnection = connectDB().catch(err => {
+      console.error('DB Connection failed:', err);
+      return null;
+    });
+  }
+  return dbConnection;
+};
+
+// Initialize DB connection (non-blocking)
+initDB();
 
 // Body parser middleware
 app.use(express.json({ limit: '10mb' }));
@@ -32,12 +45,39 @@ app.use(helmet()); // Set security headers
 app.use(mongoSanitize()); // Sanitize data to prevent MongoDB injection
 app.use(hpp()); // Prevent HTTP parameter pollution
 
-// CORS configuration
+// CORS configuration - Allow all Vercel domains
 const corsOptions = {
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Allow Vercel domains and localhost
+    const allowedOrigins = [
+      'https://sehatmitra-patient.vercel.app',
+      'https://sehatmitra-asha.vercel.app',
+      'https://sehatmitra-doctor.vercel.app',
+      'https://sehatmitra-landing.vercel.app',
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://localhost:3002',
+      'http://localhost:3004'
+    ];
+    
+    // Check if origin matches or ends with vercel.app
+    if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+      callback(null, true);
+    } else {
+      callback(null, true); // Allow all for now
+    }
+  },
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
+
+// Enable pre-flight across-the-board
+app.options('*', cors(corsOptions));
 app.use(cors(corsOptions));
 
 // Compression middleware
@@ -49,6 +89,12 @@ if (process.env.NODE_ENV === 'development') {
 } else {
   app.use(morgan('combined'));
 }
+
+// Debug logging for all requests
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  next();
+});
 
 // Rate limiting
 const limiter = rateLimit({
@@ -69,7 +115,20 @@ app.get('/health', (req, res) => {
     message: 'SehatMitra API is running',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV,
-    version: process.env.API_VERSION || 'v1'
+    version: process.env.API_VERSION || 'v1',
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+  });
+});
+
+// Test registration endpoint
+app.post('/api/v1/test/register', (req, res) => {
+  console.log('===== TEST REGISTER =====');
+  console.log('Body:', req.body);
+  console.log('Headers:', req.headers);
+  res.json({
+    success: true,
+    message: 'Test endpoint received request',
+    received: req.body
   });
 });
 
@@ -106,52 +165,48 @@ app.use((req, res, next) => {
 // Error handler middleware (must be last)
 app.use(errorHandler);
 
-// Start server
-const PORT = process.env.PORT || 5000;
-const server = app.listen(PORT, () => {
-  console.log('');
-  console.log('╔════════════════════════════════════════════════════════════╗');
-  console.log('║                                                            ║');
-  console.log('║          🏥  SehatMitra API Server Started  🏥            ║');
-  console.log('║                                                            ║');
-  console.log('╠════════════════════════════════════════════════════════════╣');
-  console.log(`║  Environment:  ${process.env.NODE_ENV?.padEnd(42)} ║`);
-  console.log(`║  Port:         ${PORT.toString().padEnd(42)} ║`);
-  console.log(`║  URL:          http://localhost:${PORT.toString().padEnd(30)} ║`);
-  console.log(`║  API Version:  ${(process.env.API_VERSION || 'v1').padEnd(42)} ║`);
-  console.log('╠════════════════════════════════════════════════════════════╣');
-
-// Initialize Socket.IO for real-time calling
-const { initializeSocket } = require('./socket/callSocket');
-initializeSocket(server);
-console.log('║  WebSocket:    ✓ Initialized for voice calls              ║');
-console.log('╠════════════════════════════════════════════════════════════╣');
-  console.log('║  📍 Endpoints:                                             ║');
-  console.log(`║     Health:    http://localhost:${PORT}/health`.padEnd(61) + '║');
-  console.log(`║     Auth:      http://localhost:${PORT}/api/${apiVersion}/auth`.padEnd(61) + '║');
-  console.log('╚════════════════════════════════════════════════════════════╝');
-  console.log('');
-});
-
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err, promise) => {
-  console.error(`❌ Unhandled Rejection: ${err.message}`);
-  // Close server & exit process
-  server.close(() => process.exit(1));
-});
-
-// Handle uncaught exceptions
-process.on('uncaughtException', (err) => {
-  console.error(`❌ Uncaught Exception: ${err.message}`);
-  process.exit(1);
-});
-
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('👋 SIGTERM received. Shutting down gracefully...');
-  server.close(() => {
-    console.log('🔌 Process terminated');
+// Only start server if not in Vercel environment
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  const PORT = process.env.PORT || 5000;
+  const server = app.listen(PORT, () => {
+    console.log('');
+    console.log('╔════════════════════════════════════════════════════════════╗');
+    console.log('║                                                            ║');
+    console.log('║          🏥  SehatMitra API Server Started  🏥            ║');
+    console.log('║                                                            ║');
+    console.log('╠════════════════════════════════════════════════════════════╣');
+    console.log(`║  Environment:  ${process.env.NODE_ENV?.padEnd(42)} ║`);
+    console.log(`║  Port:         ${PORT.toString().padEnd(42)} ║`);
+    console.log(`║  URL:          http://localhost:${PORT.toString().padEnd(30)} ║`);
+    console.log(`║  API Version:  ${(process.env.API_VERSION || 'v1').padEnd(42)} ║`);
+    console.log('╠════════════════════════════════════════════════════════════╣');
+    console.log('║  📍 Endpoints:                                             ║');
+    console.log(`║     Health:    http://localhost:${PORT}/health`.padEnd(61) + '║');
+    console.log(`║     Auth:      http://localhost:${PORT}/api/${apiVersion}/auth`.padEnd(61) + '║');
+    console.log('╚════════════════════════════════════════════════════════════╝');
+    console.log('');
   });
-});
+
+  // Handle unhandled promise rejections
+  process.on('unhandledRejection', (err, promise) => {
+    console.error(`❌ Unhandled Rejection: ${err.message}`);
+    // Close server & exit process
+    server.close(() => process.exit(1));
+  });
+
+  // Handle uncaught exceptions
+  process.on('uncaughtException', (err) => {
+    console.error(`❌ Uncaught Exception: ${err.message}`);
+    process.exit(1);
+  });
+
+  // Graceful shutdown
+  process.on('SIGTERM', () => {
+    console.log('👋 SIGTERM received. Shutting down gracefully...');
+    server.close(() => {
+      console.log('🔌 Process terminated');
+    });
+  });
+}
 
 module.exports = app;
