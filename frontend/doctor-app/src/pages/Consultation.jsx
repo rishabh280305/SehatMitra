@@ -3,16 +3,17 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { FiX, FiUser, FiActivity, FiFileText, FiSave, FiZap, FiPhone, FiVideo, FiInfo, FiMessageSquare, FiSend } from 'react-icons/fi';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { useCall } from '../contexts/CallContext';
 import VoiceCall from '../components/VoiceCall';
+import API_BASE_URL from '../config';
 import './Consultation.css';
-
-const API_BASE_URL = 'http://localhost:5000/api/v1';
 
 function Consultation() {
   const navigate = useNavigate();
   const location = useLocation();
   const patient = location.state?.patient;
   const isUserPatient = location.state?.isUserPatient;
+  const { initiateCall } = useCall();
 
   const [diagnosis, setDiagnosis] = useState(patient?.diagnosis || '');
   const [prescription, setPrescription] = useState(patient?.prescription || '');
@@ -217,9 +218,31 @@ function Consultation() {
                 {showMessages ? 'Hide Messages' : 'View Messages'}
               </button>
             )}
-            <button className="btn-voice-call" onClick={() => setShowVoiceCall(true)}>
+            <button 
+              className="btn-voice-call" 
+              onClick={() => initiateCall(
+                patient._id || patient.id, 
+                patient.name,
+                'voice',
+                patient.language || 'en'
+              )}
+              style={{ marginRight: '0.5rem' }}
+            >
               <FiPhone />
-              Start Voice Call
+              Voice Call
+            </button>
+            <button 
+              className="btn-voice-call" 
+              onClick={() => initiateCall(
+                patient._id || patient.id, 
+                patient.name,
+                'video',
+                patient.language || 'en'
+              )}
+              style={{ marginRight: '0.5rem', background: 'var(--accent-blue)' }}
+            >
+              <FiVideo />
+              Video Call
             </button>
             <button className="close-btn" onClick={() => navigate('/queue')}>
               <FiX size={24} />

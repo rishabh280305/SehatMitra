@@ -3,10 +3,10 @@ import { FiPhone, FiPhoneOff, FiMic, FiMicOff, FiVolume2, FiVolumeX } from 'reac
 import { io } from 'socket.io-client';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import API_BASE_URL from '../config';
 import './VoiceCall.css';
 
-const API_BASE_URL = 'http://localhost:5000/api/v1';
-const SOCKET_URL = 'http://localhost:5000';
+const SOCKET_URL = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'https://sehatmitra-backend.vercel.app';
 
 // Production-ready STUN/TURN servers (free public servers + Google's)
 const ICE_SERVERS = {

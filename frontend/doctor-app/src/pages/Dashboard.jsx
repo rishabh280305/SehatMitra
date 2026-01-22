@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiLogOut, FiUser, FiUsers, FiActivity, FiCheckCircle, FiPhone } from 'react-icons/fi';
 import axios from 'axios';
+import API_BASE_URL from '../config';
+import '../styles/modern.css';
 import './Dashboard.css';
-
-const API_BASE_URL = 'http://localhost:5000/api/v1';
 
 function Dashboard({ user, onLogout }) {
   const navigate = useNavigate();

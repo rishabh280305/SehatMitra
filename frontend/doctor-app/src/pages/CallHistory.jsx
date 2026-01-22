@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react';
 import { FiPhone, FiClock, FiFileText, FiUser, FiCheck, FiX, FiPhoneMissed } from 'react-icons/fi';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import API_BASE_URL from '../config';
 import './CallHistory.css';
-
-const API_BASE_URL = 'http://localhost:5000/api/v1';
 
 function CallHistory() {
   const [calls, setCalls] = useState([]);

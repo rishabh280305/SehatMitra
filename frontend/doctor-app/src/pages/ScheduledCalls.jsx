@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import { FiPhone, FiVideo, FiCalendar, FiClock, FiUser, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { useCall } from '../contexts/CallContext';
+import API_BASE_URL from '../config';
 import './ScheduledCalls.css';
-
-const API_BASE_URL = 'http://localhost:5000/api/v1';
 
 function ScheduledCalls() {
   const [calls, setCalls] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { initiateCall } = useCall();
 
   useEffect(() => {
     fetchScheduledCalls();
@@ -53,11 +54,24 @@ function ScheduledCalls() {
   };
 
   const joinCall = (call) => {
-    if (call.callLink) {
-      window.open(call.callLink, '_blank');
-    } else {
-      toast.info('Call link will be available once both parties accept');
+    const patientId = call.patient?._id || call.patient?.id;
+    const patientName = call.patient?.name || 'Patient';
+    const patientLanguage = call.patient?.language || 'en';
+    
+    if (!patientId) {
+      toast.error('Patient information not available');
+      return;
     }
+
+    // Initiate WebRTC call
+    initiateCall(
+      patientId,
+      patientName,
+      call.callType || 'voice',
+      patientLanguage
+    );
+
+    toast.success(`Calling ${patientName}...`);
   };
 
   const formatDateTime = (dateString) => {
@@ -143,11 +157,10 @@ function ScheduledCalls() {
                 </div>
 
                 <div className="call-actions">
-                  {call.status === 'accepted' && call.callLink && (
+                  {call.status === 'accepted' && (
                     <button 
                       className="btn-join"
                       onClick={() => joinCall(call)}
-                      disabled={!isPast && new Date(call.scheduledTime) > new Date(Date.now() + 10 * 60 * 1000)}
                     >
                       {isPast ? 'Rejoin Call' : 'Join Call'}
                     </button>
