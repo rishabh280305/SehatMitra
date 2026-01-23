@@ -21,20 +21,8 @@ const errorHandler = require('./middleware/errorHandler');
 // Create Express app
 const app = express();
 
-// Connect to database (async in serverless, will reconnect on each cold start)
-let dbConnection = null;
-const initDB = async () => {
-  if (!dbConnection) {
-    dbConnection = connectDB().catch(err => {
-      console.error('DB Connection failed:', err);
-      return null;
-    });
-  }
-  return dbConnection;
-};
-
-// Initialize DB connection (non-blocking)
-initDB();
+// Connect to database immediately on module load
+connectDB();
 
 // Body parser middleware
 app.use(express.json({ limit: '10mb' }));
