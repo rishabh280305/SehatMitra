@@ -96,17 +96,20 @@ app.use((req, res, next) => {
   next();
 });
 
-// Rate limiting
+// Rate limiting - More permissive for development
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 1000, // Increased to 1000
   message: {
     success: false,
     message: 'Too many requests from this IP, please try again later.'
-  }
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
-app.use('/api/', limiter);
+// Only apply rate limiting to specific routes, not health checks
+app.use('/api/v1/auth', limiter);
 
 // Health check route
 app.get('/health', (req, res) => {
