@@ -8,7 +8,9 @@ const User = require('../models/User');
  */
 exports.initiateCall = async (req, res, next) => {
   try {
-    const { receiverId, callType, offer } = req.body;
+    // Support both receiverId and receiver for backwards compatibility
+    const receiverId = req.body.receiverId || req.body.receiver;
+    const { callType, offer, receiverName } = req.body;
 
     if (!receiverId || !callType) {
       return res.status(400).json({
@@ -17,13 +19,12 @@ exports.initiateCall = async (req, res, next) => {
       });
     }
 
-    // Get receiver details
-    const receiver = await User.findById(receiverId);
+    // Get receiver details - try to find by different ID formats
+    let receiver = await User.findById(receiverId);
+    
+    // If not found, it might be a patient or asha worker reference
     if (!receiver) {
-      return res.status(404).json({
-        success: false,
-        message: 'Receiver not found'
-      });
+      console.log(`User not found with ID ${receiverId}, creating call with provided name`);
     }
 
     // Create call session
@@ -31,24 +32,24 @@ exports.initiateCall = async (req, res, next) => {
     const call = await Call.create({
       callId,
       caller: req.user.id,
-      callerName: req.user.fullName,
+      callerName: req.user.fullName || req.user.name,
       receiver: receiverId,
-      receiverName: receiver.fullName,
+      receiverName: receiver?.fullName || receiver?.name || receiverName || 'Unknown',
       callType,
       offer,
       status: 'ringing'
     });
 
-    console.log(`📞 Call initiated: ${req.user.fullName} calling ${receiver.fullName} (${callType})`);
+    console.log(`[CALL] Call initiated: ${req.user.fullName || req.user.name} calling ${call.receiverName} (${callType})`);
 
     res.status(201).json({
       success: true,
       message: 'Call initiated',
-      data: {
+      call: {
         callId: call.callId,
         receiver: {
-          id: receiver._id,
-          name: receiver.fullName
+          id: receiverId,
+          name: call.receiverName
         },
         callType: call.callType,
         status: call.status
@@ -226,12 +227,10 @@ exports.getPendingCalls = async (req, res, next) => {
     res.status(200).json({
       success: true,
       count: calls.length,
-      data: calls.map(call => ({
+      calls: calls.map(call => ({
         callId: call.callId,
-        caller: {
-          id: call.caller,
-          name: call.callerName
-        },
+        caller: call.caller,
+        callerName: call.callerName,
         callType: call.callType,
         offer: call.offer,
         createdAt: call.createdAt

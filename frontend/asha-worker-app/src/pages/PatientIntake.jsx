@@ -67,56 +67,59 @@ function PatientIntake({ user, onLogout }) {
   };
 
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <button className="back-btn" onClick={() => navigate('/dashboard')}>
-          <FiHome /> Dashboard
+    <div className="patient-intake-page">
+      <div className="patient-intake-container">
+        <button className="back-link" onClick={() => navigate('/dashboard')}>
+          <FiHome /> Back to Dashboard
         </button>
-        <h1>Register New Patient</h1>
-        <p>Record patient information and symptoms</p>
-      </div>
+        <div className="page-header">
+          <h1>Register New Patient</h1>
+          <p>Record patient information and symptoms</p>
+        </div>
 
-      <form onSubmit={handleSubmit} className="intake-form">
-        <div className="form-section">
-          <h3>Patient Information</h3>
-          <div className="form-row">
-            <div className="input-group">
+        <form onSubmit={handleSubmit} className="intake-form">
+          <div className="form-section">
+            <h3 className="form-section-title">Patient Information</h3>
+            <div className="form-grid">
+            <div className="form-group">
               <label>Patient Name</label>
               <input
                 type="text"
                 name="patientName"
+                className="form-input"
                 value={formData.patientName}
                 onChange={handleChange}
                 required
               />
             </div>
-            <div className="input-group">
+            <div className="form-group">
               <label>Age</label>
               <input
                 type="number"
                 name="age"
+                className="form-input"
                 value={formData.age}
                 onChange={handleChange}
                 required
               />
             </div>
-            <div className="input-group">
+            <div className="form-group">
               <label>Gender</label>
-              <select name="gender" value={formData.gender} onChange={handleChange} required>
+              <select name="gender" className="form-select" value={formData.gender} onChange={handleChange} required>
                 <option value="">Select</option>
                 <option value="male">Male</option>
                 <option value="female">Female</option>
                 <option value="other">Other</option>
               </select>
             </div>
+            </div>
           </div>
-        </div>
 
-        <div className="form-section">
-          <h3>Vital Signs</h3>
-          <div className="form-row">
-            <div className="input-group">
-              <label>Temperature (°F)</label>
+          <div className="form-section">
+            <h3 className="form-section-title">Vital Signs</h3>
+            <div className="vitals-grid">
+            <div className="vitals-grid">
+            <div className="vital-input-group">
               <input
                 type="number"
                 step="0.1"
@@ -125,9 +128,9 @@ function PatientIntake({ user, onLogout }) {
                 onChange={handleChange}
                 placeholder="98.6"
               />
+              <span className="vital-unit">°F</span>
             </div>
-            <div className="input-group">
-              <label>Blood Pressure</label>
+            <div className="vital-input-group">
               <input
                 type="text"
                 name="vital_bloodPressure"
@@ -135,9 +138,9 @@ function PatientIntake({ user, onLogout }) {
                 onChange={handleChange}
                 placeholder="120/80"
               />
+              <span className="vital-unit">mmHg</span>
             </div>
-            <div className="input-group">
-              <label>Pulse Rate (bpm)</label>
+            <div className="vital-input-group">
               <input
                 type="number"
                 name="vital_pulseRate"
@@ -145,9 +148,10 @@ function PatientIntake({ user, onLogout }) {
                 onChange={handleChange}
                 placeholder="72"
               />
+              <span className="vital-unit">bpm</span>
             </div>
-            <div className="input-group">
-              <label>Oxygen Level (%)</label>
+            </div>
+            <div className="vital-input-group">
               <input
                 type="number"
                 name="vital_oxygenLevel"
@@ -155,50 +159,48 @@ function PatientIntake({ user, onLogout }) {
                 onChange={handleChange}
                 placeholder="98"
               />
+              <span className="vital-unit">%</span>
+            </div>
             </div>
           </div>
-        </div>
 
-        <div className="form-section">
-          <h3>Symptoms & Observations</h3>
-          <div className="input-group">
-            <label>Chief Complaints</label>
-            <textarea
-              name="symptoms"
-              value={formData.symptoms}
-              onChange={handleChange}
-              rows="4"
-              placeholder="Describe patient's symptoms..."
-              required
-            />
+          <div className="form-section">
+            <h3 className="form-section-title">Symptoms & Observations</h3>
+            <div className="form-group full-width">
+              <label>Chief Complaints</label>
+              <textarea
+                name="symptoms"
+                className="form-textarea"
+                value={formData.symptoms}
+                onChange={handleChange}
+                rows="4"
+                placeholder="Describe patient's symptoms..."
+                required
+              />
+            </div>
+            <div className="form-group full-width">
+              <label>Additional Notes</label>
+              <textarea
+                name="notes"
+                className="form-textarea"
+                value={formData.notes}
+                onChange={handleChange}
+                rows="3"
+                placeholder="Any additional observations..."
+              />
+            </div>
           </div>
-          <div className="input-group">
-            <label>Additional Notes</label>
-            <textarea
-              name="notes"
-              value={formData.notes}
-              onChange={handleChange}
-              rows="3"
-              placeholder="Any additional observations..."
-            />
-          </div>
-        </div>
 
-        <div className="form-section">
-          <h3>Medical Records</h3>
-          <div className="upload-area">
-            <FiCamera />
-            <p>Take Photo or Upload Report</p>
-            <button type="button" className="btn-secondary">
-              <FiUpload /> Choose File
+          <div className="form-actions">
+            <button type="button" className="btn btn-secondary" onClick={() => navigate('/dashboard')}>
+              Cancel
+            </button>
+            <button type="submit" className="btn btn-primary">
+              Register Patient
             </button>
           </div>
-        </div>
-
-        <button type="submit" className="btn btn-primary">
-          Register Patient
-        </button>
-      </form>
+        </form>
+      </div>
     </div>
   );
 }

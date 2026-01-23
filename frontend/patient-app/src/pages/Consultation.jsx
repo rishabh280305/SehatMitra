@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FiLogOut, FiSend, FiPaperclip, FiMic, FiImage, FiFile, FiX } from 'react-icons/fi';
+import { FiLogOut, FiSend, FiPaperclip, FiMic, FiImage, FiFile, FiX, FiUser, FiCalendar, FiActivity, FiAlertCircle, FiClock, FiCheckCircle } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import API_BASE_URL from '../config';
@@ -10,50 +10,34 @@ function Consultation({ user, onLogout }) {
   const location = useLocation();
   const selectedDoctor = location.state?.selectedDoctor || null;
   
-  const [messages, setMessages] = useState([]);
-  const [inputMessage, setInputMessage] = useState('');
+  // Form fields
+  const [chiefComplaint, setChiefComplaint] = useState('');
+  const [duration, setDuration] = useState('');
+  const [severity, setSeverity] = useState('moderate');
+  const [symptoms, setSymptoms] = useState([]);
+  const [symptomInput, setSymptomInput] = useState('');
+  const [medicalHistory, setMedicalHistory] = useState('');
+  const [currentMedications, setCurrentMedications] = useState('');
+  const [allergies, setAllergies] = useState('');
+  const [additionalNotes, setAdditionalNotes] = useState('');
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isRecording, setIsRecording] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  
   const fileInputRef = useRef(null);
-  const messagesEndRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
 
-  useEffect(() => {
-    // Load previous consultation messages with this doctor
-    if (selectedDoctor) {
-      fetchConsultationHistory();
+  const addSymptom = () => {
+    if (symptomInput.trim() && !symptoms.includes(symptomInput.trim())) {
+      setSymptoms([...symptoms, symptomInput.trim()]);
+      setSymptomInput('');
     }
-  }, [selectedDoctor]);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const fetchConsultationHistory = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      console.log('Fetching consultation history for doctor:', selectedDoctor?.id);
-      const response = await axios.get(`${API_BASE_URL}/consultations/messages`, {
-        headers: { Authorization: `Bearer ${token}` },
-        params: selectedDoctor ? { doctorId: selectedDoctor.id } : {}
-      });
-      console.log('Consultation history response:', response.data);
-      if (response.data.success && response.data.data.length > 0) {
-        // Filter messages for this specific doctor if doctor is selected
-        const filteredMessages = selectedDoctor 
-          ? response.data.data.filter(msg => msg.doctor?._id === selectedDoctor.id)
-          : response.data.data;
-        setMessages(filteredMessages);
-      }
-    } catch (error) {
-      console.error('Error fetching consultation history:', error);
-    }
+  const removeSymptom = (symptom) => {
+    setSymptoms(symptoms.filter(s => s !== symptom));
   };
 
   const handleFileSelect = (e) => {
@@ -107,9 +91,11 @@ function Consultation({ user, onLogout }) {
     }
   };
 
-  const handleSendMessage = async () => {
-    if (!inputMessage.trim() && selectedFiles.length === 0) {
-      toast.error('Please enter a message or attach files');
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    
+    if (!chiefComplaint.trim()) {
+      toast.error('Please describe your main health concern');
       return;
     }
 
@@ -122,11 +108,39 @@ function Consultation({ user, onLogout }) {
     try {
       const token = localStorage.getItem('token');
       const formData = new FormData();
-      formData.append('content', inputMessage);
+      
+      // Build comprehensive consultation message
+      let consultationReport = `**Chief Complaint:** ${chiefComplaint}\n\n`;
+      
+      if (duration) {
+        consultationReport += `**Duration:** ${duration}\n\n`;
+      }
+      
+      consultationReport += `**Severity:** ${severity}\n\n`;
+      
+      if (symptoms.length > 0) {
+        consultationReport += `**Symptoms:**\n${symptoms.map(s => `• ${s}`).join('\n')}\n\n`;
+      }
+      
+      if (medicalHistory) {
+        consultationReport += `**Medical History:** ${medicalHistory}\n\n`;
+      }
+      
+      if (currentMedications) {
+        consultationReport += `**Current Medications:** ${currentMedications}\n\n`;
+      }
+      
+      if (allergies) {
+        consultationReport += `**Allergies:** ${allergies}\n\n`;
+      }
+      
+      if (additionalNotes) {
+        consultationReport += `**Additional Notes:** ${additionalNotes}`;
+      }
+      
+      formData.append('content', consultationReport);
       formData.append('senderType', 'patient');
       formData.append('doctorId', selectedDoctor.id);
-      
-      console.log('Sending message to doctor:', selectedDoctor.name);
       
       selectedFiles.forEach(file => {
         formData.append('files', file);
@@ -143,38 +157,15 @@ function Consultation({ user, onLogout }) {
         }
       );
 
-      console.log('Message sent response:', response.data);
-
       if (response.data.success) {
-        // Add the new message to the UI immediately
-        const newMessage = {
-          sender: 'patient',
-          senderName: user.name,
-          content: inputMessage,
-          files: response.data.data.files || [],
-          timestamp: new Date(),
-          messageType: response.data.data.messageType
-        };
-        setMessages(prev => [...prev, newMessage]);
-        setInputMessage('');
-        setSelectedFiles([]);
-        toast.success('Message sent to doctor');
-        
-        // Refresh messages to get the saved version from backend
-        setTimeout(() => fetchConsultationHistory(), 1000);
+        setSubmitted(true);
+        toast.success('Consultation request sent to doctor successfully!');
       }
     } catch (error) {
-      console.error('Error sending message:', error);
-      toast.error(error.response?.data?.message || 'Failed to send message');
+      console.error('Error sending consultation:', error);
+      toast.error(error.response?.data?.message || 'Failed to send consultation request');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
     }
   };
 
@@ -195,115 +186,247 @@ function Consultation({ user, onLogout }) {
       <div className="container consultation-container">
         {!selectedDoctor ? (
           <div className="doctor-selection-prompt">
+            <FiAlertCircle size={64} />
             <h2>No Doctor Selected</h2>
             <p>Please select a doctor to start your consultation</p>
             <Link to="/select-doctor" className="btn btn-primary">
               Select a Doctor
             </Link>
           </div>
+        ) : submitted ? (
+          <div className="success-message">
+            <FiCheckCircle size={80} />
+            <h2>Consultation Request Submitted!</h2>
+            <p>Your consultation request has been sent to Dr. {selectedDoctor.name}</p>
+            <p className="sub-text">The doctor will review your information and respond shortly.</p>
+            <div className="action-buttons">
+              <Link to="/dashboard" className="btn btn-primary">Back to Dashboard</Link>
+              <Link to="/consultation-history" className="btn btn-outline">View History</Link>
+            </div>
+          </div>
         ) : (
           <>
-            <div className="selected-doctor-info">
-              <h3>Consulting with: {selectedDoctor.name}</h3>
-              <p>{selectedDoctor.specialization}</p>
+            <div className="selected-doctor-card">
+              <div className="doctor-icon">
+                <FiUser size={24} />
+              </div>
+              <div className="doctor-details">
+                <h3>Consulting with: Dr. {selectedDoctor.name}</h3>
+                <p>{selectedDoctor.specialization}</p>
+              </div>
             </div>
 
-            <div className="consultation-card">
-              <div className="consultation-header">
-                <h2>Consultation</h2>
-                <p>Send your symptoms, reports, images or voice notes</p>
+            <form onSubmit={handleSendMessage} className="consultation-form">
+              <div className="form-header">
+                <h2>Medical Consultation Form</h2>
+                <p>Please provide detailed information to help the doctor understand your condition</p>
               </div>
 
-              <div className="messages-container">
-                {messages.length === 0 ? (
-                  <div className="empty-messages">
-                    <p>Start your consultation by sending a message to the doctor</p>
+              {/* Chief Complaint */}
+              <div className="form-section">
+                <h3 className="section-title">
+                  <FiActivity /> Primary Health Concern
+                </h3>
+                <div className="form-group">
+                  <label>What is your main health concern? *</label>
+                  <textarea
+                    value={chiefComplaint}
+                    onChange={(e) => setChiefComplaint(e.target.value)}
+                    placeholder="Describe your primary symptom or health issue..."
+                    rows="3"
+                    required
+                  />
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>How long have you had this issue?</label>
+                    <input
+                      type="text"
+                      value={duration}
+                      onChange={(e) => setDuration(e.target.value)}
+                      placeholder="e.g., 3 days, 2 weeks, 1 month"
+                    />
                   </div>
-                ) : (
-                  messages.map((msg, index) => (
-                    <div key={index} className={`message ${msg.sender}`}>
-                  <div className="message-header">
-                    <span className="sender-name">{msg.senderName || (msg.sender === 'patient' ? 'You' : 'Doctor')}</span>
+                  <div className="form-group">
+                    <label>Severity Level</label>
+                    <select value={severity} onChange={(e) => setSeverity(e.target.value)}>
+                      <option value="mild">Mild</option>
+                      <option value="moderate">Moderate</option>
+                      <option value="severe">Severe</option>
+                    </select>
                   </div>
-                  <div className="message-content">
-                    {msg.content && <p>{msg.content}</p>}
-                    {msg.files && msg.files.length > 0 && (
-                      <div className="message-files">
-                        {msg.files.map((file, i) => (
-                          <div key={i} className="file-badge">
-                            {file.mimetype?.startsWith('image/') || file.type?.startsWith('image/') ? <FiImage /> : 
-                             file.mimetype?.startsWith('audio/') || file.type?.startsWith('audio/') ? <FiMic /> : <FiFile />}
-                            <span>{file.originalName || file.name}</span>
-                          </div>
-                        ))}
+                </div>
+              </div>
+
+              {/* Symptoms */}
+              <div className="form-section">
+                <h3 className="section-title">
+                  <FiAlertCircle /> Additional Symptoms
+                </h3>
+                <div className="form-group">
+                  <label>List other symptoms you're experiencing</label>
+                  <div className="symptom-input">
+                    <input
+                      type="text"
+                      value={symptomInput}
+                      onChange={(e) => setSymptomInput(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSymptom())}
+                      placeholder="Type symptom and press Enter"
+                    />
+                    <button type="button" onClick={addSymptom} className="add-btn">
+                      Add
+                    </button>
+                  </div>
+                  <div className="symptoms-list">
+                    {symptoms.map((symptom, index) => (
+                      <span key={index} className="symptom-chip">
+                        {symptom}
+                        <button type="button" onClick={() => removeSymptom(symptom)}>
+                          <FiX />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Medical History */}
+              <div className="form-section">
+                <h3 className="section-title">
+                  <FiCalendar /> Medical Background
+                </h3>
+                <div className="form-group">
+                  <label>Past Medical History</label>
+                  <textarea
+                    value={medicalHistory}
+                    onChange={(e) => setMedicalHistory(e.target.value)}
+                    placeholder="Previous illnesses, surgeries, chronic conditions..."
+                    rows="3"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Current Medications</label>
+                  <textarea
+                    value={currentMedications}
+                    onChange={(e) => setCurrentMedications(e.target.value)}
+                    placeholder="List any medications you're currently taking..."
+                    rows="2"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Known Allergies</label>
+                  <input
+                    type="text"
+                    value={allergies}
+                    onChange={(e) => setAllergies(e.target.value)}
+                    placeholder="Food, medication, or environmental allergies..."
+                  />
+                </div>
+              </div>
+
+              {/* Additional Information */}
+              <div className="form-section">
+                <h3 className="section-title">
+                  <FiFile /> Additional Information
+                </h3>
+                <div className="form-group">
+                  <label>Any other details you'd like to share</label>
+                  <textarea
+                    value={additionalNotes}
+                    onChange={(e) => setAdditionalNotes(e.target.value)}
+                    placeholder="Lifestyle factors, recent travel, family history..."
+                    rows="3"
+                  />
+                </div>
+              </div>
+
+              {/* File Attachments */}
+              <div className="form-section">
+                <h3 className="section-title">
+                  <FiPaperclip /> Attachments (Optional)
+                </h3>
+                <p className="helper-text">Upload medical reports, test results, images, or voice notes</p>
+                
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileSelect}
+                  accept="image/*,video/*,audio/*,.pdf,.doc,.docx"
+                  multiple
+                  style={{ display: 'none' }}
+                />
+                
+                <div className="attachment-buttons">
+                  <button 
+                    type="button"
+                    className="attach-btn"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <FiPaperclip /> Attach Files
+                  </button>
+
+                  <button 
+                    type="button"
+                    className={`record-btn ${isRecording ? 'recording' : ''}`}
+                    onClick={isRecording ? stopRecording : startRecording}
+                  >
+                    <FiMic /> {isRecording ? 'Stop Recording' : 'Record Voice Note'}
+                  </button>
+                </div>
+
+                {selectedFiles.length > 0 && (
+                  <div className="attached-files">
+                    {selectedFiles.map((file, index) => (
+                      <div key={index} className="file-item">
+                        <div className="file-icon">
+                          {file.type.startsWith('image/') ? <FiImage /> : 
+                           file.type.startsWith('audio/') ? <FiMic /> : <FiFile />}
+                        </div>
+                        <div className="file-info">
+                          <span className="file-name">{file.name}</span>
+                          <span className="file-size">
+                            {(file.size / 1024).toFixed(1)} KB
+                          </span>
+                        </div>
+                        <button 
+                          type="button"
+                          onClick={() => removeFile(index)} 
+                          className="remove-file"
+                        >
+                          <FiX />
+                        </button>
                       </div>
-                    )}
+                    ))}
                   </div>
-                  <span className="message-time">
-                    {new Date(msg.createdAt || msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </span>
-                </div>
-              ))
-            )}
-            <div ref={messagesEndRef} />
-          </div>
+                )}
+              </div>
 
-          {selectedFiles.length > 0 && (
-            <div className="selected-files">
-              {selectedFiles.map((file, index) => (
-                <div key={index} className="file-chip">
-                  {file.type.startsWith('image/') ? <FiImage /> : 
-                   file.type.startsWith('audio/') ? <FiMic /> : <FiFile />}
-                  <span>{file.name}</span>
-                  <button onClick={() => removeFile(index)}><FiX /></button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="input-area">
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileSelect}
-              accept="image/*,video/*,audio/*,.pdf,.doc,.docx"
-              multiple
-              style={{ display: 'none' }}
-            />
-            
-            <button 
-              className="attach-btn"
-              onClick={() => fileInputRef.current?.click()}
-              title="Attach files"
-            >
-              <FiPaperclip />
-            </button>
-
-            <button 
-              className={`record-btn ${isRecording ? 'recording' : ''}`}
-              onClick={isRecording ? stopRecording : startRecording}
-              title={isRecording ? 'Stop recording' : 'Record voice note'}
-            >
-              <FiMic />
-            </button>
-
-            <textarea
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Type your message, symptoms, or concerns..."
-              rows="1"
-            />
-
-            <button 
-              className="send-btn"
-              onClick={handleSendMessage}
-              disabled={loading || (!inputMessage.trim() && selectedFiles.length === 0)}
-            >
-              <FiSend />
-            </button>
-          </div>
-        </div>
+              {/* Submit Button */}
+              <div className="form-actions">
+                <button 
+                  type="submit" 
+                  className="submit-btn"
+                  disabled={loading || !chiefComplaint.trim()}
+                >
+                  {loading ? (
+                    <>
+                      <div className="spinner"></div>
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <FiSend /> Submit Consultation Request
+                    </>
+                  )}
+                </button>
+                <p className="privacy-note">
+                  Your information is encrypted and will only be shared with your selected doctor
+                </p>
+              </div>
+            </form>
           </>
         )}
       </div>

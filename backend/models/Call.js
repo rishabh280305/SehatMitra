@@ -9,18 +9,18 @@ const callSchema = new mongoose.Schema({
     index: true
   },
   caller: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    type: String,
+    required: true,
+    index: true
   },
   callerName: {
     type: String,
     required: true
   },
   receiver: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    type: String,
+    required: true,
+    index: true
   },
   receiverName: {
     type: String,
@@ -33,7 +33,7 @@ const callSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['ringing', 'active', 'ended', 'rejected', 'missed'],
+    enum: ['ringing', 'active', 'ended', 'rejected', 'missed', 'answered'],
     default: 'ringing'
   },
   offer: {

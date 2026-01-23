@@ -68,6 +68,7 @@ export const CallProvider = ({ children, user }) => {
   const initiateCall = async (remoteUserId, remoteName, callType = 'video', remoteLanguage = 'en') => {
     if (!user) {
       console.error('❌ Cannot initiate call - user not available');
+      alert('Please log in to make calls.');
       return;
     }
 
@@ -75,14 +76,31 @@ export const CallProvider = ({ children, user }) => {
       console.log('📞 Initiating call to:', remoteName, remoteUserId);
 
       // Get local media stream
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: {
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-          facingMode: 'user'
+      let stream;
+      try {
+        const constraints = callType === 'video' 
+          ? {
+              audio: true,
+              video: {
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
+                facingMode: 'user'
+              }
+            }
+          : { audio: true, video: false };
+        
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
+      } catch (mediaError) {
+        console.error('❌ Media error:', mediaError);
+        if (mediaError.name === 'NotAllowedError') {
+          alert('Camera/microphone permission denied. Please allow access in your browser settings.');
+        } else if (mediaError.name === 'NotFoundError') {
+          alert('No camera/microphone found. Please connect a device and try again.');
+        } else {
+          alert(`Media error: ${mediaError.message}`);
         }
-      });
+        return;
+      }
       
       localStreamRef.current = stream;
 
@@ -137,10 +155,22 @@ export const CallProvider = ({ children, user }) => {
 
         // Start polling for answer
         pollForAnswer(response.data.call.callId, peerConnection);
+      } else {
+        console.error('❌ Backend returned error:', response.data);
+        alert(`Call failed: ${response.data.message || 'Unknown error'}`);
+        cleanupMedia();
       }
     } catch (error) {
       console.error('❌ Error initiating call:', error);
-      alert('Failed to initiate call. Please check your camera/microphone permissions.');
+      
+      if (error.response) {
+        const msg = error.response.data?.message || error.response.statusText || 'Server error';
+        alert(`Call failed: ${msg}`);
+      } else if (error.request) {
+        alert('Network error. Please check your internet connection.');
+      } else {
+        alert(`Error: ${error.message}`);
+      }
       cleanupMedia();
     }
   };

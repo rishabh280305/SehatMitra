@@ -1,12 +1,13 @@
-/* ASHA Worker App - My Patients Dark Theme */
+/* ASHA Worker App - My Patients Light Theme with Green Accents */
 .my-patients-page {
   min-height: 100vh;
-  background: var(--bg-primary);
-  padding: 2rem 1rem;
+  background: #f5f5f7;
+  padding: 3rem 2rem;
+  margin-left: 240px;
 }
 
 .my-patients-container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -14,24 +15,25 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
 }
 
 .page-title h1 {
-  color: var(--text-primary);
-  font-size: 1.75rem;
-  margin-bottom: 0.25rem;
+  color: #111827;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
 }
 
 .page-title p {
-  color: var(--text-secondary);
+  color: #6b7280;
 }
 
 .add-patient-btn {
   padding: 0.75rem 1.5rem;
-  background: var(--gradient-primary);
+  background: linear-gradient(135deg, #10b981, #059669);
   border: none;
-  border-radius: var(--radius-lg);
+  border-radius: 8px;
   color: white;
   font-weight: 500;
   cursor: pointer;
@@ -42,31 +44,31 @@
 }
 
 .add-patient-btn:hover {
-  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
   transform: translateY(-1px);
 }
 
 .patients-filters {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
   flex-wrap: wrap;
 }
 
 .search-bar {
   flex: 1;
-  min-width: 280px;
+  min-width: 300px;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1rem;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
 }
 
 .search-bar svg {
-  color: var(--text-muted);
+  color: #9ca3af;
   flex-shrink: 0;
 }
 
@@ -74,7 +76,7 @@
   flex: 1;
   background: transparent;
   border: none;
-  color: var(--text-primary);
+  color: #111827;
   font-size: 0.9rem;
 }
 
@@ -83,55 +85,55 @@
 }
 
 .search-bar input::placeholder {
-  color: var(--text-muted);
+  color: #9ca3af;
 }
 
 .filter-select {
   padding: 0.625rem 2.5rem 0.625rem 1rem;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  color: var(--text-secondary);
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  color: #6b7280;
   font-size: 0.9rem;
   cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
 }
 
 .filter-select:focus {
   outline: none;
-  border-color: var(--primary);
+  border-color: #10b981;
 }
 
 .filter-select option {
-  background: var(--bg-secondary);
+  background: white;
 }
 
 .patients-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
 }
 
 .patient-stat {
-  background: var(--gradient-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 1rem 1.25rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
   text-align: center;
 }
 
 .patient-stat-value {
   font-size: 1.75rem;
   font-weight: 700;
-  color: var(--primary-light);
+  color: #10b981;
 }
 
 .patient-stat-label {
-  color: var(--text-muted);
+  color: #6b7280;
   font-size: 0.8rem;
   margin-top: 0.25rem;
 }
@@ -139,50 +141,50 @@
 .patients-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .patient-card {
-  background: var(--gradient-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
-  padding: 1.5rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 2rem;
   transition: all 0.3s ease;
 }
 
 .patient-card:hover {
-  border-color: var(--border-light);
-  box-shadow: var(--shadow-lg);
+  border-color: #d1d5db;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 .patient-card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .patient-info {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 .patient-avatar {
   width: 52px;
   height: 52px;
-  background: linear-gradient(135deg, #3f3f46, #52525b);
+  background: linear-gradient(135deg, #10b981, #059669);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
+  color: white;
   font-weight: 600;
   font-size: 1.2rem;
 }
 
 .patient-details h3 {
-  color: var(--text-primary);
+  color: #111827;
   font-size: 1.1rem;
   margin-bottom: 0.25rem;
 }
@@ -190,7 +192,7 @@
 .patient-meta {
   display: flex;
   gap: 1rem;
-  color: var(--text-muted);
+  color: #6b7280;
   font-size: 0.85rem;
 }
 
@@ -216,31 +218,31 @@
 
 .status-active {
   background: rgba(16, 185, 129, 0.15);
-  color: var(--secondary);
+  color: #10b981;
 }
 
 .status-follow-up {
   background: rgba(245, 158, 11, 0.15);
-  color: var(--warning);
+  color: #f59e0b;
 }
 
 .status-critical {
   background: rgba(239, 68, 68, 0.15);
-  color: var(--danger);
+  color: #ef4444;
 }
 
 .last-visit {
-  color: var(--text-muted);
+  color: #9ca3af;
   font-size: 0.8rem;
 }
 
 .patient-card-body {
   display: flex;
-  gap: 2rem;
-  margin-bottom: 1rem;
-  padding: 1rem 0;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  gap: 2.5rem;
+  margin-bottom: 1.5rem;
+  padding: 1.25rem 0;
+  border-top: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .patient-condition {
@@ -248,7 +250,7 @@
 }
 
 .condition-label {
-  color: var(--text-muted);
+  color: #9ca3af;
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -256,7 +258,7 @@
 }
 
 .condition-value {
-  color: var(--text-primary);
+  color: #111827;
   font-size: 0.9rem;
 }
 
@@ -269,23 +271,23 @@
 
 .condition-tag {
   padding: 0.25rem 0.625rem;
-  background: rgba(139, 92, 246, 0.1);
+  background: rgba(16, 185, 129, 0.1);
   border-radius: 100px;
-  color: var(--primary-light);
+  color: #059669;
   font-size: 0.75rem;
 }
 
 .patient-card-footer {
   display: flex;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
 .patient-action-btn {
   flex: 1;
-  padding: 0.75rem 1rem;
-  border-radius: var(--radius);
+  padding: 0.875rem 1.25rem;
+  border-radius: 8px;
   font-weight: 500;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
@@ -295,30 +297,30 @@
 }
 
 .patient-action-btn.primary {
-  background: var(--gradient-primary);
+  background: linear-gradient(135deg, #10b981, #059669);
   border: none;
   color: white;
 }
 
 .patient-action-btn.primary:hover {
-  box-shadow: 0 2px 10px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4);
 }
 
 .patient-action-btn.secondary {
   background: transparent;
-  border: 1px solid var(--border);
-  color: var(--text-secondary);
+  border: 1px solid #e5e7eb;
+  color: #6b7280;
 }
 
 .patient-action-btn.secondary:hover {
-  border-color: var(--border-light);
-  color: var(--text-primary);
+  border-color: #d1d5db;
+  color: #111827;
 }
 
 .patient-action-btn.call {
   background: rgba(16, 185, 129, 0.1);
   border: 1px solid rgba(16, 185, 129, 0.2);
-  color: var(--secondary);
+  color: #10b981;
 }
 
 .patient-action-btn.call:hover {
@@ -337,18 +339,18 @@
 .empty-patients svg {
   width: 64px;
   height: 64px;
-  color: var(--text-muted);
+  color: #9ca3af;
   opacity: 0.5;
   margin-bottom: 1rem;
 }
 
 .empty-patients h3 {
-  color: var(--text-secondary);
+  color: #6b7280;
   margin-bottom: 0.5rem;
 }
 
 .empty-patients p {
-  color: var(--text-muted);
+  color: #9ca3af;
   font-size: 0.9rem;
 }
 

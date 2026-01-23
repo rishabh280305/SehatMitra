@@ -68,7 +68,7 @@ function Register({ setUser }) {
     <div className="auth-container">
       <div className="auth-card" style={{ maxWidth: '600px' }}>
         <div className="auth-header">
-          <h1>🏥 SehatMitra</h1>
+          <h1>SehatMitra</h1>
           <h2>Doctor Registration</h2>
           <p>Join our healthcare network</p>
         </div>

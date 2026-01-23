@@ -25,6 +25,8 @@
       "title": "SehatMitra",
       "welcome": "Welcome",
       "logout": "Logout",
+      "healthServices": "Health Services",
+      "accessHealthcare": "Access healthcare services at your fingertips",
       "services": "Your Health Services",
       "servicesDesc": "Access healthcare services and manage your health",
       "consultDoctor": "Consult Doctor",
@@ -33,9 +35,14 @@
       "myConsultationsDesc": "View your past consultations and prescriptions",
       "followUp": "Follow-up Requests",
       "followUpDesc": "Check follow-up requests from your doctors",
+      "followUpRequests": "Follow-up Requests",
+      "followUpRequestsDesc": "Check follow-up requests from your doctors",
+      "aiHealthAssistant": "AI Health Assistant",
+      "aiHealthAssistantDesc": "Get instant health guidance powered by AI",
       "aiAssistant": "AI Health Assistant",
       "aiAssistantDesc": "Get quick health guidance and symptom information",
       "profile": "Profile Information",
+      "profileInfo": "Profile Information",
       "fullName": "Full Name",
       "email": "Email Address",
       "phone": "Phone Number",
@@ -62,7 +69,8 @@
       "delete": "Delete",
       "edit": "Edit",
       "close": "Close",
-      "confirm": "Confirm"
+      "confirm": "Confirm",
+      "logout": "Logout"
     }
   },
   "hi": {

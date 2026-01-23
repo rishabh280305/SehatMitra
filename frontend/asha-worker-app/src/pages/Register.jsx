@@ -43,7 +43,7 @@ function Register({ setUser }) {
   const handleFaceCapture = (capturedDescriptor) => {
     setFaceDescriptor(capturedDescriptor);
     setShowFaceCapture(false);
-    toast.success('✅ Face captured! Complete registration to save.');
+    toast.success('Face captured! Complete registration to save.');
   };
 
   const handleSubmit = async (e) => {
@@ -100,7 +100,7 @@ function Register({ setUser }) {
       ) : (
         <div className="auth-card" style={{ maxWidth: '600px' }}>
         <div className="auth-header">
-          <h1>🏥 SehatMitra</h1>
+          <h1>SehatMitra</h1>
           <h2>ASHA Worker Registration</h2>
           <p>Register to help your community</p>
         </div>
@@ -173,7 +173,7 @@ function Register({ setUser }) {
             marginBottom: '1rem'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <span style={{ fontSize: '2rem' }}>{faceDescriptor ? '✅' : '👤'}</span>
+              <span style={{ fontSize: '2rem' }}>{faceDescriptor ? '' : ''}</span>
               <div style={{ flex: 1 }}>
                 <strong style={{ display: 'block', marginBottom: '0.25rem' }}>
                   {faceDescriptor ? 'Face Registered' : 'Optional: Register Face'}

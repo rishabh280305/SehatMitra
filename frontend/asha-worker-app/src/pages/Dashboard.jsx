@@ -59,171 +59,209 @@ function Dashboard({ user, onLogout }) {
   };
 
   return (
-    <div className="dashboard-container">
-      <header className="dashboard-header">
-        <div className="header-content">
-          <h1>SehatMitra ASHA</h1>
-          <div className="user-info">
-            <FiUser />
-            <span>{user?.fullName || 'ASHA Worker'}</span>
-            <button onClick={onLogout} className="btn-logout">
-              <FiLogOut /> Logout
+    <div className="dashboard">
+      {/* Sidebar */}
+      <aside className="sidebar">
+        <div className="sidebar-header">
+          <div className="sidebar-logo">
+            <FiActivity size={24} />
+          </div>
+          <div className="sidebar-brand">
+            <h3>SehatMitra</h3>
+            <p>ASHA WORKER</p>
+          </div>
+        </div>
+
+        <nav className="sidebar-nav">
+          <a href="#" className="nav-item active">
+            <FiActivity /> Dashboard
+          </a>
+          <a href="#" className="nav-item" onClick={(e) => { e.preventDefault(); navigate('/patient-register'); }}>
+            <FiUser /> Register Patient
+          </a>
+          <a href="#" className="nav-item" onClick={(e) => { e.preventDefault(); navigate('/my-patients'); }}>
+            <FiUsers /> My Patients
+          </a>
+          <a href="#" className="nav-item" onClick={(e) => { e.preventDefault(); navigate('/ai-consultant'); }}>
+            <FiMessageCircle /> AI Consultant
+          </a>
+          <a href="#" className="nav-item" onClick={(e) => { e.preventDefault(); navigate('/inventory'); }}>
+            <FiPackage /> Inventory
+          </a>
+        </nav>
+
+        <div className="sidebar-footer">
+          <div className="sidebar-user">
+            <div className="user-avatar">
+              <FiUser />
+            </div>
+            <div className="user-details">
+              <p className="user-name">{user?.fullName || 'ASHA Worker'}</p>
+              <p className="user-role">Health Worker</p>
+            </div>
+          </div>
+          <button onClick={onLogout} className="btn-logout-sidebar">
+            <FiLogOut /> Logout
+          </button>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <div className="main-content">
+        {/* Hero Banner */}
+        <div className="hero-banner">
+          <div className="hero-content">
+            <h1>Welcome back, {user?.fullName || 'ASHA Worker'}</h1>
+            <p>Here's your dashboard overview for today</p>
+          </div>
+          <div className="hero-stat">
+            <h2>{stats.pendingPatients}</h2>
+            <p>Pending Consultations</p>
+          </div>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="stats-row">
+          <div className="stat-card-new" onClick={() => navigate('/my-patients?filter=all')} style={{ cursor: 'pointer' }}>
+            <h3>{loading ? '...' : stats.patientsRegistered}</h3>
+            <p>My Patients</p>
+            <a href="#" onClick={(e) => { e.preventDefault(); navigate('/my-patients'); }}>View all →</a>
+          </div>
+          <div className="stat-card-new" onClick={() => navigate('/my-patients?filter=pending')} style={{ cursor: 'pointer' }}>
+            <h3>{loading ? '...' : stats.pendingPatients}</h3>
+            <p>Pending</p>
+            <a href="#" onClick={(e) => { e.preventDefault(); navigate('/my-patients?filter=pending'); }}>View all →</a>
+          </div>
+          <div className="stat-card-new" onClick={() => navigate('/my-patients?filter=completed')} style={{ cursor: 'pointer' }}>
+            <h3>{loading ? '...' : stats.completedToday}</h3>
+            <p>Completed Today</p>
+            <a href="#" onClick={(e) => { e.preventDefault(); navigate('/my-patients?filter=completed'); }}>View all →</a>
+          </div>
+          <div className="stat-card-new" onClick={() => navigate('/my-patients?filter=in_consultation')} style={{ cursor: 'pointer' }}>
+            <h3>{loading ? '...' : stats.inConsultation}</h3>
+            <p>In Consultation</p>
+            <a href="#" onClick={(e) => { e.preventDefault(); navigate('/my-patients?filter=in_consultation'); }}>View all →</a>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="content-card">
+          <div className="card-header">
+            <h3>Quick Actions</h3>
+          </div>
+          <div className="action-buttons">
+            <button className="action-btn" onClick={() => navigate('/patient-register')}>
+              <FiUser size={20} />
+              <span>Register Patient</span>
+            </button>
+            <button className="action-btn" onClick={() => navigate('/my-patients')}>
+              <FiUsers size={20} />
+              <span>My Patients</span>
+            </button>
+            <button className="action-btn" onClick={() => navigate('/ai-consultant')}>
+              <FiMessageCircle size={20} />
+              <span>AI Consultation</span>
+            </button>
+            <button className="action-btn" onClick={() => navigate('/inventory')}>
+              <FiPackage size={20} />
+              <span>Inventory</span>
             </button>
           </div>
         </div>
-      </header>
 
-      <main className="dashboard-main">
-        <div className="stats-grid">
-          <div className="stat-card" onClick={() => navigate('/my-patients?filter=all')} style={{ cursor: 'pointer' }}>
-            <div className="stat-icon-circle patients">
-              <FiUsers size={24} />
-            </div>
-            <div className="stat-info">
-              <h3>{loading ? '...' : stats.patientsRegistered}</h3>
-              <p>My Patients</p>
-            </div>
-          </div>
-          <div className="stat-card" onClick={() => navigate('/my-patients?filter=pending')} style={{ cursor: 'pointer' }}>
-            <div className="stat-icon-circle consultations">
-              <FiActivity size={24} />
-            </div>
-            <div className="stat-info">
-              <h3>{loading ? '...' : stats.pendingPatients}</h3>
-              <p>Pending</p>
-            </div>
-          </div>
-          <div className="stat-card" onClick={() => navigate('/my-patients?filter=completed')} style={{ cursor: 'pointer' }}>
-            <div className="stat-icon-circle inventory">
-              <FiCheckCircle size={24} />
-            </div>
-            <div className="stat-info">
-              <h3>{loading ? '...' : stats.completedToday}</h3>
-              <p>Completed Today</p>
-            </div>
-          </div>
-          <div className="stat-card" onClick={() => navigate('/my-patients?filter=in_consultation')} style={{ cursor: 'pointer' }}>
-            <div className="stat-icon-circle tasks">
-              <FiClipboard size={24} />
-            </div>
-            <div className="stat-info">
-              <h3>{loading ? '...' : stats.inConsultation}</h3>
-              <p>In Consultation</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="dashboard-content">
-          <div className="quick-actions full-width">
-            <div className="section-header">
-              <h2>Quick Actions</h2>
-            </div>
-            <div className="action-buttons">
-              <button className="action-btn" onClick={() => navigate('/patient-register')}>
-                <FiUser size={20} />
-                <span>Register Patient</span>
-              </button>
-              <button className="action-btn" onClick={() => navigate('/my-patients')}>
-                <FiUsers size={20} />
-                <span>My Patients</span>
-              </button>
-              <button className="action-btn" onClick={() => navigate('/consultations')}>
-                <FiClipboard size={20} />
-                <span>Patient Consultations</span>
-              </button>
-              <button className="action-btn" onClick={() => navigate('/ai-consultant')}>
-                <FiMessageCircle size={20} />
-                <span>AI Consultation</span>
-              </button>
-            </div>
-          </div>
-
-          <div className="tasks-inventory-grid">
-            <div className="tasks-section">
-              <div className="section-header">
-                <h2>Today's Tasks</h2>
-              </div>
-              <div className="tasks-list">
-                {tasks.map(task => (
-                  <div key={task.id} className={`task-item ${task.priority} ${task.done ? 'done' : ''}`}>
-                    <div className="task-info" onClick={() => handleTaskClick(task)} style={{ cursor: task.patientName ? 'pointer' : 'default' }}>
-                      <span className="task-title">{task.title}</span>
-                      <span className="task-time">{task.time}</span>
-                    </div>
-                    <div className="task-actions">
-                      <span className={`priority-badge ${task.priority}`}>{task.priority.toUpperCase()}</span>
-                      <button 
-                        className={`btn-mark-done ${task.done ? 'done' : ''}`}
-                        onClick={() => markTaskDone(task.id)}
-                        title={task.done ? 'Mark as undone' : 'Mark as done'}
-                      >
-                        {task.done ? '✓ Done' : 'Mark Done'}
-                      </button>
-                    </div>
-                  </div>
-                ))}
+        {/* Tasks and Inventory Grid */}
+        <div className="content-grid">
+          <div className="content-card">
+            <div className="card-header">
+              <div className="card-title-with-icon">
+                <FiClipboard className="card-icon" />
+                <h3>Today's Tasks</h3>
               </div>
             </div>
+            <div className="tasks-list">
+              {tasks.map(task => (
+                <div key={task.id} className={`task-item ${task.priority} ${task.done ? 'done' : ''}`}>
+                  <div className="task-info" onClick={() => handleTaskClick(task)} style={{ cursor: task.patientName ? 'pointer' : 'default' }}>
+                    <span className="task-title">{task.title}</span>
+                    <span className="task-time">{task.time}</span>
+                  </div>
+                  <div className="task-actions">
+                    <span className={`priority-badge ${task.priority}`}>{task.priority.toUpperCase()}</span>
+                    <button 
+                      className={`btn-mark-done ${task.done ? 'done' : ''}`}
+                      onClick={() => markTaskDone(task.id)}
+                      title={task.done ? 'Mark as undone' : 'Mark as done'}
+                    >
+                      {task.done ? 'Done' : 'Mark Done'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
 
-            <div className="inventory-section">
-              <div className="section-header">
-                <h2>Inventory Status</h2>
+          <div className="content-card">
+            <div className="card-header">
+              <div className="card-title-with-icon">
+                <FiPackage className="card-icon" />
+                <h3>Inventory Status</h3>
               </div>
-              <div className="inventory-list">
-                <div className="inventory-item">
-                  <div className="inventory-info">
-                    <span className="item-name">ORS Packets</span>
-                    <div className="stock-bar">
-                      <div className="stock-fill" style={{ width: '75%', background: '#10b981' }}></div>
-                    </div>
+              <a href="#" onClick={(e) => { e.preventDefault(); navigate('/inventory'); }}>View All</a>
+            </div>
+            <div className="inventory-list">
+              <div className="inventory-item">
+                <div className="inventory-info">
+                  <span className="item-name">ORS Packets</span>
+                  <div className="stock-bar">
+                    <div className="stock-fill" style={{ width: '75%', background: '#10b981' }}></div>
                   </div>
-                  <span className="stock-count">45/60</span>
                 </div>
-                <div className="inventory-item">
-                  <div className="inventory-info">
-                    <span className="item-name">Paracetamol</span>
-                    <div className="stock-bar">
-                      <div className="stock-fill" style={{ width: '40%', background: '#f59e0b' }}></div>
-                    </div>
+                <span className="stock-count">45/60</span>
+              </div>
+              <div className="inventory-item">
+                <div className="inventory-info">
+                  <span className="item-name">Paracetamol</span>
+                  <div className="stock-bar">
+                    <div className="stock-fill" style={{ width: '40%', background: '#f59e0b' }}></div>
                   </div>
-                  <span className="stock-count low">24/60</span>
                 </div>
-                <div className="inventory-item">
-                  <div className="inventory-info">
-                    <span className="item-name">Iron Tablets</span>
-                    <div className="stock-bar">
-                      <div className="stock-fill" style={{ width: '90%', background: '#10b981' }}></div>
-                    </div>
+                <span className="stock-count low">24/60</span>
+              </div>
+              <div className="inventory-item">
+                <div className="inventory-info">
+                  <span className="item-name">Iron Tablets</span>
+                  <div className="stock-bar">
+                    <div className="stock-fill" style={{ width: '90%', background: '#10b981' }}></div>
                   </div>
-                  <span className="stock-count">108/120</span>
                 </div>
-                <div className="inventory-item">
-                  <div className="inventory-info">
-                    <span className="item-name">Bandages</span>
-                    <div className="stock-bar">
-                      <div className="stock-fill" style={{ width: '25%', background: '#ef4444' }}></div>
-                    </div>
+                <span className="stock-count">108/120</span>
+              </div>
+              <div className="inventory-item">
+                <div className="inventory-info">
+                  <span className="item-name">Bandages</span>
+                  <div className="stock-bar">
+                    <div className="stock-fill" style={{ width: '25%', background: '#ef4444' }}></div>
                   </div>
-                  <span className="stock-count critical">5/20</span>
                 </div>
-                <div className="inventory-item">
-                  <div className="inventory-info">
-                    <span className="item-name">Antiseptic</span>
-                    <div className="stock-bar">
-                      <div className="stock-fill" style={{ width: '60%', background: '#10b981' }}></div>
-                    </div>
+                <span className="stock-count critical">5/20</span>
+              </div>
+              <div className="inventory-item">
+                <div className="inventory-info">
+                  <span className="item-name">Antiseptic</span>
+                  <div className="stock-bar">
+                    <div className="stock-fill" style={{ width: '60%', background: '#10b981' }}></div>
                   </div>
-                  <span className="stock-count">18/30</span>
                 </div>
+                <span className="stock-count">18/30</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1rem' }}>
+        <div style={{ maxWidth: '100%', margin: '2rem 0' }}>
           <FaceSetupCard user={user} />
         </div>
-      </main>
+      </div>
     </div>
   );
 }

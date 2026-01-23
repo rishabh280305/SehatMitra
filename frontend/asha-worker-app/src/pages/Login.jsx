@@ -129,7 +129,7 @@ function Login({ setUser }) {
             className="btn btn-face-login"
             disabled={loading}
           >
-            <span style={{ fontSize: '1.5rem', marginRight: '0.5rem' }}>👤</span>
+            <span style={{ fontSize: '1.5rem', marginRight: '0.5rem' }}></span>
             Login with Face Verification
           </button>
 

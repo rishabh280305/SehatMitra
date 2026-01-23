@@ -21,12 +21,35 @@ const errorHandler = require('./middleware/errorHandler');
 // Create Express app
 const app = express();
 
-// Connect to database immediately on module load
-connectDB();
+// Connect to database - don't block server startup on connection failure
+connectDB().catch(err => {
+  console.error('❌ Initial MongoDB connection failed:', err.message);
+  console.log('⚠️  Server will attempt to reconnect on requests...');
+});
 
 // Body parser middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Database connection middleware - ensure connection before processing requests
+app.use(async (req, res, next) => {
+  if (mongoose.connection.readyState !== 1) {
+    console.log('⚠️  Database not connected, attempting reconnection...');
+    try {
+      await connectDB();
+      next();
+    } catch (error) {
+      console.error('❌ Failed to connect to database:', error.message);
+      return res.status(503).json({
+        success: false,
+        message: 'Database connection unavailable',
+        error: error.message
+      });
+    }
+  } else {
+    next();
+  }
+});
 
 // Security middleware
 app.use(helmet()); // Set security headers
@@ -144,9 +167,13 @@ app.use(`/api/${apiVersion}/patients`, require('./routes/patient.routes'));
 app.use(`/api/${apiVersion}/consultations`, require('./routes/consultation.routes'));
 app.use(`/api/${apiVersion}/calls`, require('./routes/call.routes'));
 app.use(`/api/${apiVersion}/doctors`, require('./routes/doctor.routes'));
-// app.use(`/api/${apiVersion}/district`, require('./routes/districtOfficer'));
-// app.use(`/api/${apiVersion}/hospital`, require('./routes/hospital'));
-// app.use(`/api/${apiVersion}/medicines`, require('./routes/essentialMedicines'));
+
+// DHO and Hospital routes
+app.use(`/api/${apiVersion}/dho`, require('./routes/dho'));
+app.use(`/api/${apiVersion}/hospital`, require('./routes/hospitalData'));
+
+// Essential Medicines route
+app.use(`/api/${apiVersion}/medicines`, require('./routes/essentialMedicines'));
 
 // 404 handler
 app.use((req, res, next) => {

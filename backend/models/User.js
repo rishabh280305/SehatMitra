@@ -230,15 +230,11 @@ const userSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-// Indexes for performance
-userSchema.index({ email: 1 });
-userSchema.index({ phone: 1 });
+// Indexes for performance (removed email and phone as they have unique: true)
 userSchema.index({ role: 1 });
 userSchema.index({ 'location.coordinates.latitude': 1, 'location.coordinates.longitude': 1 });
-userSchema.index({ 'ashaWorkerDetails.workerId': 1 }, { sparse: true });
-userSchema.index({ 'doctorDetails.medicalLicenseNumber': 1 }, { sparse: true });
 
-// Virtual for age calculation
+// Virtual for calculating age// Virtual for age calculation
 userSchema.virtual('age').get(function() {
   if (!this.dateOfBirth) return null;
   const today = new Date();

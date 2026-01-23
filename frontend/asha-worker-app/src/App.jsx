@@ -6,7 +6,7 @@ import { authService } from './services/api';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
-import PatientIntake from './pages/PatientIntake';
+import PatientRegister from './pages/PatientRegister';
 import PatientConsultations from './pages/PatientConsultations';
 import AIConsultant from './pages/AIConsultant';
 import MyPatients from './pages/MyPatients';
@@ -52,7 +52,7 @@ function App() {
         />
         <Route 
           path="/patient-register" 
-          element={user ? <PatientIntake user={user} onLogout={handleLogout} /> : <Navigate to="/login" />} 
+          element={user ? <PatientRegister user={user} onLogout={handleLogout} /> : <Navigate to="/login" />} 
         />
         <Route 
           path="/consultations" 

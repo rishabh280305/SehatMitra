@@ -154,7 +154,7 @@ function FaceCapture({ onFaceCapture, mode = 'register' }) {
     <div className="face-capture-container">
       <div className="face-capture-header">
         <h3>
-          {mode === 'register' ? '📸 Register Your Face' : '🔐 Verify Your Identity'}
+          {mode === 'register' ? 'Register Your Face' : 'Verify Your Identity'}
         </h3>
         <p>
           {mode === 'register' 
@@ -172,7 +172,7 @@ function FaceCapture({ onFaceCapture, mode = 'register' }) {
 
       {error && (
         <div className="error-message">
-          ⚠️ {error}
+          {error}
         </div>
       )}
 
@@ -189,9 +189,9 @@ function FaceCapture({ onFaceCapture, mode = 'register' }) {
         
         <div className="face-status">
           {faceDetected ? (
-            <span className="status-detected">✅ Face Detected</span>
+            <span className="status-detected">Face Detected</span>
           ) : (
-            <span className="status-searching">👤 Searching for face...</span>
+            <span className="status-searching">Searching for face...</span>
           )}
         </div>
       </div>
@@ -211,7 +211,7 @@ function FaceCapture({ onFaceCapture, mode = 'register' }) {
       {mode === 'login' && capturing && (
         <div className="capture-controls">
           <p style={{ color: '#4caf50', fontWeight: 600, fontSize: '1.1rem' }}>
-            🔐 Verifying your identity...
+            Verifying your identity...
           </p>
         </div>
       )}
@@ -219,8 +219,8 @@ function FaceCapture({ onFaceCapture, mode = 'register' }) {
       <div className="instructions">
         <h4>Instructions:</h4>
         <ul>
-          <li>✓ Ensure good lighting</li>
-          <li>✓ Look directly at the camera</li>
+          <li>Ensure good lighting</li>
+          <li>Look directly at the camera</li>
           <li>✓ Remove glasses if possible</li>
           <li>✓ Keep your face centered in the frame</li>
         </ul>

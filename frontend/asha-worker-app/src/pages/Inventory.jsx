@@ -19,7 +19,7 @@ function Inventory() {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>📦 Inventory Management</h1>
+        <h1>Inventory Management</h1>
         <p>Monitor and manage medical supplies</p>
       </div>
 
