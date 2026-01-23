@@ -63,7 +63,7 @@ const dummyUsers = [
     email: 'dho@test.com',
     password: 'dho123',
     phone: '9876543214',
-    role: 'admin',
+    role: 'district_officer',
     isActive: true
   },
   {
@@ -71,7 +71,7 @@ const dummyUsers = [
     email: 'admin@test.com',
     password: 'admin123',
     phone: '9876543215',
-    role: 'admin',
+    role: 'hospital_admin',
     isActive: true
   }
 ];
